@@ -269,6 +269,28 @@ class DoclingLoader:
                 if self.params.get("pipeline"):
                     params["pipeline"] = self.params.get("pipeline")
 
+                # match docling-serve 1.8.0 api params in docs
+                dependent_new_params_1_8_0 = [
+                    "table_cell_matching",
+                    "page_range",
+                    "document_timeout",
+                    "abort_on_error",
+                    "do_table_structure",
+                    "include_images",
+                    "images_scale",
+                    "md_page_break_placeholder",
+                    "do_code_enrichment",
+                    "do_formula_enrichment",
+                    "do_picture_classification",
+                    "picture_description_area_threshold",
+                    "vlm_pipeline_model",
+                    "vlm_pipeline_model_local",
+                    "vlm_pipeline_model_api",
+                ]
+                for param in dependent_new_params_1_8_0:
+                    if self.params.get(param):
+                        params[param] = self.params.get(param)
+
             endpoint = f"{self.url}/v1/convert/file"
             r = requests.post(endpoint, files=files, data=params)
 
