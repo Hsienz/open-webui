@@ -195,14 +195,17 @@ class DoclingLoader:
             )
             return ""
 
-        groups_map = body.get("groups", {})
-        pictures_map = body.get("pictures", {})
-        texts_map = body.get("texts", {})
+        groups_map = {x["self_ref"]: x for x in json_content.get("groups", [])}
+        pictures_map = {x["self_ref"]: x for x in json_content.get("pictures", [])}
+        texts_map = {x["self_ref"]: x for x in json_content.get("texts", [])}
 
         groups_map[body_id] = body
 
         return self.json_content_to_md_content_handle_group(
-            texts_map, groups_map, pictures_map, body.get("self_ref")
+            texts_map=texts_map,
+            groups_map=groups_map,
+            pictures_map=pictures_map,
+            id=body_id,
         )
 
     def load(self) -> list[Document]:
@@ -273,6 +276,7 @@ class DoclingLoader:
             result = r.json()
             document_data = result.get("document", {})
             json_content = document_data.get("json_content", {})
+
             text = self._json_content_to_md_content(json_content)
             if not text:
                 text = "<No text content found>"
