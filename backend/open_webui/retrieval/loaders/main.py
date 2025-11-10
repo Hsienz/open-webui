@@ -139,6 +139,72 @@ class DoclingLoader:
 
         self.params = params or {}
 
+    def json_content_to_md_content_handle_group(
+        self, texts_map: dict, groups_map: dict, pictures_map: dict, id: str
+    ):
+        elem = groups_map.get(id, {})
+        children = elem.get("children", [])
+        inner = []
+        for child in children:
+            ref = child.get("$ref", "")
+            if ref.startswith("#/pictures/"):
+                inner.append(
+                    self.json_content_to_md_content_handle_picture(pictures_map, ref)
+                )
+            elif ref.startswith("#/texts/"):
+                inner.append(
+                    self.json_content_to_md_content_handle_text(texts_map, ref)
+                )
+            elif ref.startswith("#/groups/"):
+                inner.append(
+                    self.json_content_to_md_content_handle_group(
+                        texts_map=texts_map,
+                        pictures_map=pictures_map,
+                        groups_map=groups_map,
+                        id=ref,
+                    )
+                )
+
+        return f"""
+        <group>
+                    {"".join(inner)}
+        </group>
+        """
+
+    def json_content_to_md_content_handle_picture(self, map: dict, id):
+        elem = map.get(id, {})
+        annotations = elem.get("annotations", [])
+        return f"""
+        <image>
+            <annotations>
+                {"".join( annotation.get("text", "") for annotation in annotations)}
+            </annotations>
+        </image>
+        """
+
+    def json_content_to_md_content_handle_text(self, map: dict, id: str):
+        elem = map.get(id, {})
+        return elem.get("text", "")
+
+    def _json_content_to_md_content(self, json_content):
+        body = json_content.get("body", {})
+        body_id = body.get("self_ref")
+        if not body_id:
+            log.warning(
+                "No self_ref found in Docling JSON content body. return empty string"
+            )
+            return ""
+
+        groups_map = body.get("groups", {})
+        pictures_map = body.get("pictures", {})
+        texts_map = body.get("texts", {})
+
+        groups_map[body_id] = body
+
+        return self.json_content_to_md_content_handle_group(
+            texts_map, groups_map, pictures_map, body.get("self_ref")
+        )
+
     def load(self) -> list[Document]:
         with open(self.file_path, "rb") as f:
             files = {
@@ -149,7 +215,7 @@ class DoclingLoader:
                 )
             }
 
-            params = {"image_export_mode": "placeholder"}
+            params = {"image_export_mode": "placeholder", "to_formats": "json"}
 
             if self.params:
                 if self.params.get("do_picture_description"):
@@ -206,7 +272,17 @@ class DoclingLoader:
         if r.ok:
             result = r.json()
             document_data = result.get("document", {})
-            text = document_data.get("md_content", "<No text content found>")
+            json_content = document_data.get("json_content", {})
+            json_data = {}
+            try:
+                json_data = json.loads(json_content)
+            except json.JSONDecodeError as e:
+                log.error("Failed to parse JSON content from Docling response: %s", e)
+                return []
+
+            text = self._json_content_to_md_content(json_data)
+            if not text:
+                text = "<No text content found>"
 
             metadata = {"Content-Type": self.mime_type} if self.mime_type else {}
 
