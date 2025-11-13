@@ -295,7 +295,14 @@ class DoclingLoader:
             result = r.json()
             document_data = result.get("document", {})
             json_content = document_data.get("json_content", {})
-            text = self._json_content_to_md_content(json_content)
+            json_data = {}
+            try:
+                json_data = json.loads(json_content)
+            except json.JSONDecodeError as e:
+                log.error("Failed to parse JSON content from Docling response: %s", e)
+                return []
+
+            text = self._json_content_to_md_content(json_data)
             if not text:
                 text = "<No text content found>"
 
