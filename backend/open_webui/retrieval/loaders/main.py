@@ -157,7 +157,7 @@ class DoclingLoader:
             text = "".join([annotation.get("text", "") for annotation in annotations])
 
             text = "![{}]({})".format(text, ref)
-            md_content = md_content.replace("<!-- image -->", text)
+            md_content = md_content.replace("<!-- image -->", text, 1)
 
         return md_content
 
