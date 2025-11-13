@@ -139,6 +139,28 @@ class DoclingLoader:
 
         self.params = params or {}
 
+    def insert_picture_caption(self, json_content: dict, md_content: str):
+        body = json_content.get("body", {})
+        children = body.get("children", [])
+        picture_refs = [
+            child.get("$ref", "")
+            for child in children
+            if child.get("$ref", "").startswith("#/pictures/")
+        ]
+        pictures = json_content.get("pictures", [])
+        picture_map: dict[str, dict] = {
+            picture.get("self_ref"): picture for picture in pictures
+        }
+        for ref in picture_refs:
+            picture = picture_map.get(ref, {})
+            annotations = picture.get("annotations", [])
+            text = "".join([annotation.get("text", "") for annotation in annotations])
+
+            text = "![{}]({})".format(text, ref)
+            md_content = md_content.replace("<!-- image -->", text)
+
+        return md_content
+
     def load(self) -> list[Document]:
         with open(self.file_path, "rb") as f:
             files = {
@@ -149,7 +171,7 @@ class DoclingLoader:
                 )
             }
 
-            params = {"image_export_mode": "placeholder"}
+            params = {"image_export_mode": "placeholder", "to_formats": ["json", "md"]}
 
             if self.params:
                 if self.params.get("do_picture_description"):
@@ -228,7 +250,14 @@ class DoclingLoader:
         if r.ok:
             result = r.json()
             document_data = result.get("document", {})
-            text = document_data.get("md_content", "<No text content found>")
+            text = document_data.get("md_content")
+            if not text:
+                text = "<No text content found>"
+            else:
+                json_content = document_data.get("json_content", {})
+                text = self.insert_picture_caption(
+                    json_content=json_content, md_content=text
+                )
 
             metadata = {"Content-Type": self.mime_type} if self.mime_type else {}
 
