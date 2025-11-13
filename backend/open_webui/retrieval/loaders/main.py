@@ -166,7 +166,9 @@ class DoclingLoader:
                 )
 
         return f"""
-            {"".join(inner)}
+        <group>
+                    {"".join(inner)}
+        </group>
         """
 
     def json_content_to_md_content_handle_picture(self, map: dict, id):
