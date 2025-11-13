@@ -139,14 +139,38 @@ class DoclingLoader:
 
         self.params = params or {}
 
+    def extract_picture_refs(self, groups_map: dict, key: str):
+        body = groups_map.get(key, {})
+        children = body.get("children", [])
+        picture_refs = []
+        for child in children:
+            ref = child.get("$ref", "")
+            if ref.startswith("#/pictures/"):
+                picture_refs.append(ref)
+            elif ref.startswith("#/groups/"):
+                picture_refs.extend(
+                    self.extract_picture_refs(groups_map=groups_map, key=ref)
+                )
+
+        return picture_refs
+
     def insert_picture_caption(self, json_content: dict, md_content: str):
         body = json_content.get("body", {})
-        children = body.get("children", [])
-        picture_refs = [
-            child.get("$ref", "")
-            for child in children
-            if child.get("$ref", "").startswith("#/pictures/")
-        ]
+        body_ref = body.get("self_ref", "")
+        groups_map = {}
+        groups = json_content.get("groups", [])
+        groups.append(body)
+
+        for group in groups:
+            ref = group.get("self_ref")
+            if not ref:
+                log.error(
+                    "Group without self_ref found in Docling JSON content, skipped"
+                )
+                continue
+            groups_map[ref] = group
+
+        picture_refs = self.extract_picture_refs(groups_map=groups_map, key=body_ref)
         pictures = json_content.get("pictures", [])
         picture_map: dict[str, dict] = {
             picture.get("self_ref"): picture for picture in pictures
