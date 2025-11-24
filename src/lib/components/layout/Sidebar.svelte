@@ -651,7 +651,7 @@
 									e.stopImmediatePropagation();
 									e.preventDefault();
 
-									goto('/workspace');
+									goto('/workspace/knowledge');
 									itemClickHandler();
 								}}
 								aria-label={$i18n.t('Workspace')}
@@ -860,7 +860,7 @@
 							<a
 								id="sidebar-workspace-button"
 								class="grow flex items-center space-x-3 rounded-2xl px-2.5 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 transition"
-								href="/workspace"
+								href="/workspace/knowledge"
 								on:click={itemClickHandler}
 								draggable="false"
 								aria-label={$i18n.t('Workspace')}
