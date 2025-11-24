@@ -2420,6 +2420,12 @@ DOCLING_DO_PICTURE_DESCRIPTION = PersistentConfig(
     os.getenv("DOCLING_DO_PICTURE_DESCRIPTION", "False").lower() == "true",
 )
 
+DOCLING_PICTURE_CAPTION_INSERTION = PersistentConfig(
+    "DOCLING_PICTURE_CAPTION_INSERTION",
+    "rag.docling_picture_caption_insertion",
+    os.getenv("DOCLING_PICTURE_CAPTION_INSERTION", "False").lower() == "true",
+)
+
 DOCLING_PICTURE_DESCRIPTION_MODE = PersistentConfig(
     "DOCLING_PICTURE_DESCRIPTION_MODE",
     "rag.docling_picture_description_mode",

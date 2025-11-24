@@ -195,9 +195,12 @@ class DoclingLoader:
                 )
             }
 
-            params = {"image_export_mode": "placeholder", "to_formats": ["json", "md"]}
+            params = {"image_export_mode": "placeholder"}
 
             if self.params:
+                if self.params.get("picture_caption_insertion"):
+                    params["to_formats"] = ["json", "md"]
+
                 if self.params.get("do_picture_description"):
                     params["do_picture_description"] = self.params.get(
                         "do_picture_description"
@@ -277,15 +280,13 @@ class DoclingLoader:
             text = document_data.get("md_content")
             if not text:
                 text = "<No text content found>"
-            else:
+            elif self.params.get("picture_caption_insertion"):
                 json_content = document_data.get("json_content", {})
                 text = self.insert_picture_caption(
                     json_content=json_content, md_content=text
                 )
 
             metadata = {"Content-Type": self.mime_type} if self.mime_type else {}
-
-            log.debug("Docling extracted text: %s", text)
 
             return [Document(page_content=text, metadata=metadata)]
         else:

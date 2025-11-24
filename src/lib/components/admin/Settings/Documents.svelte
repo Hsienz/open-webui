@@ -674,6 +674,16 @@
 								</div>
 							</div>
 							{#if RAGConfig.DOCLING_DO_PICTURE_DESCRIPTION}
+								<div class="flex w-full mt-2">
+									<div class="flex-1 flex justify-between">
+										<div class=" self-center text-xs font-medium">
+											{$i18n.t('Picture caption insertion')}
+										</div>
+										<div class="flex items-center relative">
+											<Switch bind:state={RAGConfig.DOCLING_PICTURE_CAPTION_INSERTION} />
+										</div>
+									</div>
+								</div>
 								<div class="flex justify-between w-full mt-2">
 									<div class="self-center text-xs font-medium">
 										<Tooltip content={''} placement="top-start">

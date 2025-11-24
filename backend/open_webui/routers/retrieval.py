@@ -460,6 +460,7 @@ async def get_rag_config(request: Request, user=Depends(get_admin_user)):
         "DOCLING_TABLE_MODE": request.app.state.config.DOCLING_TABLE_MODE,
         "DOCLING_PIPELINE": request.app.state.config.DOCLING_PIPELINE,
         "DOCLING_DO_PICTURE_DESCRIPTION": request.app.state.config.DOCLING_DO_PICTURE_DESCRIPTION,
+        "DOCLING_PICTURE_CAPTION_INSERTION": request.app.state.config.DOCLING_PICTURE_CAPTION_INSERTION,
         "DOCLING_PICTURE_DESCRIPTION_MODE": request.app.state.config.DOCLING_PICTURE_DESCRIPTION_MODE,
         "DOCLING_PICTURE_DESCRIPTION_LOCAL": request.app.state.config.DOCLING_PICTURE_DESCRIPTION_LOCAL,
         "DOCLING_PICTURE_DESCRIPTION_API": request.app.state.config.DOCLING_PICTURE_DESCRIPTION_API,
@@ -646,6 +647,7 @@ class ConfigForm(BaseModel):
     DOCLING_TABLE_MODE: Optional[str] = None
     DOCLING_PIPELINE: Optional[str] = None
     DOCLING_DO_PICTURE_DESCRIPTION: Optional[bool] = None
+    DOCLING_PICTURE_CAPTION_INSERTION: Optional[bool] = None
     DOCLING_PICTURE_DESCRIPTION_MODE: Optional[str] = None
     DOCLING_PICTURE_DESCRIPTION_LOCAL: Optional[dict] = None
     DOCLING_PICTURE_DESCRIPTION_API: Optional[dict] = None
@@ -865,6 +867,11 @@ async def update_rag_config(
         form_data.DOCLING_DO_PICTURE_DESCRIPTION
         if form_data.DOCLING_DO_PICTURE_DESCRIPTION is not None
         else request.app.state.config.DOCLING_DO_PICTURE_DESCRIPTION
+    )
+    request.app.state.config.DOCLING_PICTURE_CAPTION_INSERTION = (
+        form_data.DOCLING_PICTURE_CAPTION_INSERTION
+        if form_data.DOCLING_PICTURE_CAPTION_INSERTION is not None
+        else request.app.state.config.DOCLING_PICTURE_CAPTION_INSERTION
     )
 
     request.app.state.config.DOCLING_PICTURE_DESCRIPTION_MODE = (
@@ -1185,6 +1192,7 @@ async def update_rag_config(
         "DOCLING_TABLE_MODE": request.app.state.config.DOCLING_TABLE_MODE,
         "DOCLING_PIPELINE": request.app.state.config.DOCLING_PIPELINE,
         "DOCLING_DO_PICTURE_DESCRIPTION": request.app.state.config.DOCLING_DO_PICTURE_DESCRIPTION,
+        "DOCLING_PICTURE_CAPTION_INSERTION": request.app.state.config.DOCLING_PICTURE_CAPTION_INSERTION,
         "DOCLING_PICTURE_DESCRIPTION_MODE": request.app.state.config.DOCLING_PICTURE_DESCRIPTION_MODE,
         "DOCLING_PICTURE_DESCRIPTION_LOCAL": request.app.state.config.DOCLING_PICTURE_DESCRIPTION_LOCAL,
         "DOCLING_PICTURE_DESCRIPTION_API": request.app.state.config.DOCLING_PICTURE_DESCRIPTION_API,
@@ -1502,7 +1510,6 @@ def process_file(
 
     if file:
         try:
-
             collection_name = form_data.collection_name
 
             if collection_name is None:
@@ -1599,6 +1606,7 @@ def process_file(
                             "table_mode": request.app.state.config.DOCLING_TABLE_MODE,
                             "pipeline": request.app.state.config.DOCLING_PIPELINE,
                             "do_picture_description": request.app.state.config.DOCLING_DO_PICTURE_DESCRIPTION,
+                            "picture_caption_insertion": request.app.state.config.DOCLING_PICTURE_CAPTION_INSERTION,
                             "picture_description_mode": request.app.state.config.DOCLING_PICTURE_DESCRIPTION_MODE,
                             "picture_description_local": request.app.state.config.DOCLING_PICTURE_DESCRIPTION_LOCAL,
                             "picture_description_api": request.app.state.config.DOCLING_PICTURE_DESCRIPTION_API,
@@ -2083,7 +2091,6 @@ def search_web(request: Request, engine: str, query: str) -> list[SearchResult]:
 async def process_web_search(
     request: Request, form_data: SearchForm, user=Depends(get_verified_user)
 ):
-
     urls = []
     result_items = []
 
@@ -2240,7 +2247,8 @@ def query_doc_handler(
                 collection_name=form_data.collection_name,
                 collection_result=collection_results[form_data.collection_name],
                 query=form_data.query,
-                embedding_function=lambda query, prefix: request.app.state.EMBEDDING_FUNCTION(
+                embedding_function=lambda query,
+                prefix: request.app.state.EMBEDDING_FUNCTION(
                     query, prefix=prefix, user=user
                 ),
                 k=form_data.k if form_data.k else request.app.state.config.TOP_K,
@@ -2307,7 +2315,8 @@ def query_collection_handler(
             return query_collection_with_hybrid_search(
                 collection_names=form_data.collection_names,
                 queries=[form_data.query],
-                embedding_function=lambda query, prefix: request.app.state.EMBEDDING_FUNCTION(
+                embedding_function=lambda query,
+                prefix: request.app.state.EMBEDDING_FUNCTION(
                     query, prefix=prefix, user=user
                 ),
                 k=form_data.k if form_data.k else request.app.state.config.TOP_K,
@@ -2337,7 +2346,8 @@ def query_collection_handler(
             return query_collection(
                 collection_names=form_data.collection_names,
                 queries=[form_data.query],
-                embedding_function=lambda query, prefix: request.app.state.EMBEDDING_FUNCTION(
+                embedding_function=lambda query,
+                prefix: request.app.state.EMBEDDING_FUNCTION(
                     query, prefix=prefix, user=user
                 ),
                 k=form_data.k if form_data.k else request.app.state.config.TOP_K,
