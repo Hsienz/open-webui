@@ -350,28 +350,19 @@ class Loader:
                         log.error("Invalid DOCLING_PARAMS format, expected JSON object")
                         params = {}
 
-                # when params set to following in admin panel
-                # {
-                #   ...
-                #   "picture_description_api": { "url": "http://example.com" }
-                #   ...
-                # }
-                #
-                # picture_description_api would be sent as { 'url': 'http://example.com' } type = dict
-                # but this would throw error
-                # after testing, found out it only accept {"url": "http://example.com"}
-                # notice it should be sent as \" not \'
-                # so dumping all dict back to str
+                params_dumped = {}
                 for k, v in params.items():
                     if isinstance(v, dict):
-                        params[k] = json.dumps(v)
+                        params_dumped[k] = json.dumps(v, ensure_ascii=False)
+                    else:
+                        params_dumped[k] = params[k]
 
                 loader = DoclingLoader(
                     url=self.kwargs.get("DOCLING_SERVER_URL"),
                     api_key=self.kwargs.get("DOCLING_API_KEY", None),
                     file_path=file_path,
                     mime_type=file_content_type,
-                    params=params,
+                    params=params_dumped,
                 )
         elif (
             self.engine == "document_intelligence"
