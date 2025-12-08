@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onDestroy, onMount } from 'svelte';
 	import { socket } from '$lib/stores';
-	import { WEBUI_BASE_URL } from '$lib/constants';
+	import { WEBUI_API_BASE_URL } from '$lib/constants';
 
 	interface ModelContainer {
 		model: string;
@@ -23,7 +23,7 @@
 		$socket?.on('container', containerHandler);
 
 		const token = localStorage.token;
-		const modelList = await fetch(`${WEBUI_BASE_URL}/api/v1/containers/models`, {
+		const modelList = await fetch(`${WEBUI_API_BASE_URL}/containers/models`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -46,7 +46,7 @@
 		}
 
 		for (var model in modelList) {
-			const containerInfo = await fetch(`${WEBUI_BASE_URL}/api/v1/containers/model/{model}`)
+			const containerInfo = await fetch(`${WEBUI_API_BASE_URL}/containers/model/{model}`)
 				.then(async (res) => {
 					if (!res.ok) throw await res.json();
 					return res.json();
