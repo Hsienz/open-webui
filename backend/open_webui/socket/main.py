@@ -285,6 +285,14 @@ async def enter_room_for_users(room: str, user_ids: list[str]):
         log.debug(f"Failed to make users {user_ids} join room {room}: {e}")
 
 
+@sio.on("docker:container:model")
+async def docker_container_model(sid, data):
+    model = data["model"]
+    status = data["status"]
+    log.debug("model container {}: {}", model, status)
+    USAGE_POOL[model] = {status: status}
+
+
 @sio.on("usage")
 async def usage(sid, data):
     if sid in SESSION_POOL:
@@ -317,7 +325,6 @@ async def connect(sid, environ, auth):
 
 @sio.on("user-join")
 async def user_join(sid, data):
-
     auth = data["auth"] if "auth" in data else None
     if not auth or "token" not in auth:
         return
@@ -712,7 +719,6 @@ def get_event_emitter(request_info, update_db=True):
             and message_id
             and not request_info.get("chat_id", "").startswith("local:")
         ):
-
             if "type" in event_data and event_data["type"] == "status":
                 Chats.add_message_status_to_chat_by_id_and_message_id(
                     request_info["chat_id"],

@@ -9,6 +9,7 @@ services:
       - ./backend:/app/backend
       - ./src:/app/src
       - open-webui:/app/backend/data
+      - ~/.cache/huggingface:/root/.cache/huggingface
     ports:
       - ${OPEN_WEBUI_PORT-3000}:8080
     environment:
