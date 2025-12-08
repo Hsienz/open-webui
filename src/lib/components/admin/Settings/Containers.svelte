@@ -5,7 +5,6 @@
 
 	interface ModelContainer {
 		model: string;
-		id: string | null;
 		status: string;
 	}
 	let modelContainers: ModelContainer[] = [];
@@ -53,14 +52,15 @@
 				})
 				.catch((err) => {
 					console.error(err);
-					return;
+					return null;
 				});
 
-			modelContainers.push({
-				model,
-				id: containerInfo.id,
-				status: containerInfo.status
-			});
+			if (containerInfo) {
+				modelContainers.push({
+					model,
+					status: containerInfo.status
+				});
+			}
 		}
 		loading = false;
 	});
@@ -71,8 +71,7 @@
 </script>
 
 <div>
-	{#each modelContainers as container (container.id)}
-		{container.id}
+	{#each modelContainers as container (container.model)}
 		{container.model}
 	{/each}
 </div>

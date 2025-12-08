@@ -1,6 +1,8 @@
 from copy import Error
 import logging
+from typing import Optional
 import docker
+from docker import errors
 from docker.models.containers import Container as DockerContainer
 import os
 from fastapi import HTTPException
@@ -13,7 +15,13 @@ log = logging.getLogger(__name__)
 class Container:
     def __init__(self) -> None:
         self.client = docker.from_env()
-        self.model_mapping: dict[str, DockerContainer] = {}
+        self.model_mapping: dict[str, Optional[DockerContainer]] = {}
+
+        for model in Container.get_model_container_list():
+            try:
+                self.model_mapping[model] = self.client.containers.get(model)
+            except errors.NotFound:
+                self.model_mapping[model] = None
 
     async def run_model_container(self, model: str, **kwargs):
         command = ["--model", model]
@@ -21,7 +29,7 @@ class Container:
             command.append(k)
             command.append(v)
 
-        return self.client.containers.run(
+        container = self.client.containers.run(
             image="vllm/vllm-openai:latest",
             command=command,
             detach=True,
@@ -34,10 +42,14 @@ class Container:
             },
         )
 
+        self.model_mapping[model] = container
+
+        return container
+
     async def toggle_model_container(self, model: str, emit=False, **kwargs):
         if container := self.model_mapping.get(model):
             container.stop()
-            del self.model_mapping[model]
+            self.model_mapping[model] = None
         else:
             container = await self.run_model_container(model, **kwargs)
 
@@ -45,7 +57,6 @@ class Container:
                 raise Error(
                     "Model Container do not create successfully for {}".format(model)
                 )
-            self.model_mapping[model] = container
 
         if emit:
             for event in self.client.events(decode=True):
@@ -61,33 +72,45 @@ class Container:
                     if status == "start":
                         break
 
-    def get_model_container_status(self, model: str):
-        container = self.client.containers.get(model)
+    def get_model_container_status(self, model: str, use_cache: bool = False):
+        handler = self.model_mapping if use_cache else self.client.containers
+        try:
+            container = handler.get(model)
+            if container is None:
+                raise errors.NotFound(model)
+        except errors.NotFound:
+            self.model_mapping[model] = None
+            return {"status": "not exist"}
 
-        if container is None:
-            raise HTTPException(400)
-
-        return {"id": container.id, "status": container.status}
+        self.model_mapping[model] = container
+        return {"status": container.status}
 
     @classmethod
-    def get_model_container_list(cls):
-        path = "/root/.cache/huggingface/hub"
-        dirs = []
-        for name in os.listdir(path):
-            if not os.path.isdir(os.path.join(path, name)):
-                continue
-            splited = name.split("--")
-            if len(splited) != 3 or splited[0] != "models":
-                log.warning(
-                    "Format of model directory not acceptable, should be models--[model-maker]--[model-name], get %s, skipped",
-                    name,
-                )
-                continue
+    def parse_model_container_name_to_model(cls, name: str) -> str:
+        return "/".join(name.split("--")[1:])
 
-            dirs.append("/".join(splited[1:]))
+    @classmethod
+    def get_model_container_list(cls, use_cache: bool = False):
+        if use_cache:
+            return sorted(container.model_mapping.keys())
+        else:
+            path = "/root/.cache/huggingface/hub"
+            dirs = []
+            for name in os.listdir(path):
+                if not os.path.isdir(os.path.join(path, name)):
+                    continue
+                splited = name.split("--")
+                if len(splited) != 3 or splited[0] != "models":
+                    log.warning(
+                        "Format of model directory not acceptable, should be models--[model-maker]--[model-name], get %s, skipped",
+                        name,
+                    )
+                    continue
 
-        dirs.sort()
-        return dirs
+                dirs.append(name)
+
+            dirs.sort()
+            return dirs
 
 
 container = Container()
