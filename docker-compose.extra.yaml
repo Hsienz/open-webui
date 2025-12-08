@@ -10,6 +10,7 @@ services:
       - ./src:/app/src
       - open-webui:/app/backend/data
       - ~/.cache/huggingface:/root/.cache/huggingface
+      - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - ${OPEN_WEBUI_PORT-3000}:8080
     environment:

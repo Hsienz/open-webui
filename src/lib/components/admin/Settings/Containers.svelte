@@ -23,7 +23,7 @@
 		$socket?.on('container', containerHandler);
 
 		const token = localStorage.token;
-		const modelList = await fetch(`${WEBUI_BASE_URL}/api/v1/containers/model/list`, {
+		const modelList = await fetch(`${WEBUI_BASE_URL}/api/v1/containers/models`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -39,6 +39,7 @@
 				return null;
 			});
 
+		console.log('model list: ', modelList);
 		if (!modelList) {
 			loading = false;
 			return;
