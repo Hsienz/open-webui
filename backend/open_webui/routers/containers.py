@@ -14,7 +14,7 @@ class ModelForm(BaseModel):
 
 @router.get("/models")
 async def get_model_container(user=Depends(get_verified_user)):
-    container.get_model_container_list()
+    return container.get_model_container_list()
 
 
 @router.post("/model/toggle")
@@ -24,4 +24,4 @@ async def toggle_model_container(form_data: ModelForm, user=Depends(get_verified
 
 @router.get("/model/{model}")
 async def get_container_status(model: str, user=Depends(get_verified_user)):
-    container.get_model_container_status(model)
+    return container.get_model_container_status(model)
