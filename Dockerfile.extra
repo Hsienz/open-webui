@@ -126,7 +126,7 @@ RUN apt-get update && \
   && rm -rf /var/lib/apt/lists/*
 
 # install python dependencies
-COPY --chown=$UID:$GID ./backend/requirements.txt ./requirements.txt
+COPY --chown=$UID:$GID ./backend/requirements-extra.txt ./requirements.txt
 
 # setup setting for oracle
 RUN mkdir -p /opt/oracle/instantclient/
