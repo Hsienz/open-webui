@@ -84,6 +84,8 @@ class Container:
                 )
                 continue
 
+            dirs.append("/".join(splited[1:]))
+
         dirs.sort()
         return dirs
 
