@@ -58,8 +58,8 @@
 
 			modelContainers.push({
 				model,
-				id: containerInfo['id'],
-				status: containerInfo['status']
+				id: containerInfo.id,
+				status: containerInfo.status
 			});
 		}
 		loading = false;
