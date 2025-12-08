@@ -79,7 +79,7 @@ class Container:
             splited = name.split("--")
             if len(splited) != 3 or splited[0] != "models":
                 log.warning(
-                    "Format of model directory not acceptable, should be models--[model-maker]--[model-name], get {}, skipped",
+                    "Format of model directory not acceptable, should be models--[model-maker]--[model-name], get %s, skipped",
                     name,
                 )
                 continue
