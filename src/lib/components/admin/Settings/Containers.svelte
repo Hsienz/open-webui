@@ -45,7 +45,7 @@
 		}
 
 		for (var model in modelList) {
-			const containerInfo = await fetch(`${WEBUI_API_BASE_URL}/containers/model/{model}`)
+			const containerInfo = await fetch(`${WEBUI_API_BASE_URL}/containers/model/${model}`)
 				.then(async (res) => {
 					if (!res.ok) throw await res.json();
 					return res.json();
