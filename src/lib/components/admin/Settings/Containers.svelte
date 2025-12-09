@@ -4,6 +4,7 @@
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
 	import Switch from '$lib/components/common/Switch.svelte';
 	import Spinner from '$lib/components/common/Spinner.svelte';
+	import { getContext } from 'svelte';
 
 	interface ModelContainer {
 		model: string;
@@ -14,6 +15,7 @@
 	let modelContainerMapping: Map<string, number> = new Map();
 	let loading = true;
 	const token = localStorage.token;
+	const i18n = getContext('i18n');
 
 	const containerHandler = async (event, cb) => {
 		console.log(JSON.stringify(event));
@@ -101,6 +103,9 @@
 	};
 </script>
 
+<div>
+	{$i18n.t('Containers')}
+</div>
 {#if loading}
 	<Spinner />
 {:else}
