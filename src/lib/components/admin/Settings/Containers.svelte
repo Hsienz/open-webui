@@ -104,9 +104,11 @@
 {#if loading}
 	<Spinner />
 {:else}
-	<div class={'flex flex-col gap-y-4'}>
+	<div class={'flex flex-col gap-y-4 text-sm'}>
 		{#each modelContainers as container (container.model)}
-			<div class="flex border-[1px] rounded-xl justify-between items-center h-24 px-4">
+			<div
+				class="flex border-[1px] rounded-xl justify-between items-center h-20 px-4 opacity-90 hover:opacity-100 transition-all duration-300"
+			>
 				<div class="flex items-center gap-x-2 grow">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -134,13 +136,18 @@
 
 				<div class="flex items-center gap-x-2">
 					<span class="w-16">
-						<label for="port">port:</label>
-						<input name="port" type="number" placeholder="8000" class="w-full" />
+						<label for="port">port*</label>
+						<input id="port" name="port" type="number" placeholder="8000" class="w-full" required />
 					</span>
 
 					<span class="w-16">
-						<label for="device_ids">device_ids:</label>
-						<input name="device_ids" placeholder="0,4,5" class="w-full" />
+						<label for="device_ids">device_ids*</label>
+						<input id="device_ids" name="device_ids" placeholder="0,1,4" class="w-full" required />
+					</span>
+
+					<span class="w-16">
+						<label for="max_tokens">max_tokens</label>
+						<input id="max_tokens" name="max_tokens" placeholder="8096" class="w-full" />
 					</span>
 
 					<Switch
