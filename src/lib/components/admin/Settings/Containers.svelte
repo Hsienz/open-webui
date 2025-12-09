@@ -106,8 +106,8 @@
 {:else}
 	<div class={'flex flex-col gap-y-4'}>
 		{#each modelContainers as container (container.model)}
-			<div class="flex border-[1px] rounded-4xl justify-around items-center h-12">
-				<div class="flex items-center">
+			<div class="flex border-[1px] rounded-xl justify-between items-center h-24 px-4">
+				<div class="flex items-center gap-x-2 grow">
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
 						height="40px"
@@ -121,9 +121,9 @@
 					</svg>
 					<div class="flex flex-col">
 						<div class="flex">
-							<h3 class="font-bold">
+							<h4 class="font-bold">
 								{container.model}
-							</h3>
+							</h4>
 							<span>
 								{container.status}
 							</span>
@@ -133,12 +133,12 @@
 				</div>
 
 				<div class="flex items-center gap-x-2">
-					<span>
+					<span class="flex w-16">
 						<label for="port">port: </label>
 						<input name="port" type="number" placeholder="8000" />
 					</span>
 
-					<span>
+					<span class="flex w-16">
 						<label for="device_ids">device_ids: </label>
 						<input name="device_ids" placeholder="0,4,5" />
 					</span>
