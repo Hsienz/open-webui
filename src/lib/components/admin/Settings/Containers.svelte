@@ -107,7 +107,7 @@
 	<div class={'flex flex-col gap-y-4 text-sm'}>
 		{#each modelContainers as container (container.model)}
 			<div
-				class="flex border-[1px] rounded-xl justify-between items-center h-20 px-4 opacity-90 hover:opacity-100 transition-all duration-300"
+				class="flex border-[1px] rounded-xl justify-between items-center h-20 px-4 opacity-50 hover:opacity-100 transition-all duration-300"
 			>
 				<div class="flex items-center gap-x-2 grow">
 					<svg
