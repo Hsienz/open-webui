@@ -65,8 +65,11 @@ class Container:
                 status = event["status"]
                 if id == container.id:
                     await sio.emit(
-                        "docker:container:model",
-                        {"model": model, "id": id, status: status},
+                        "container",
+                        {
+                            "type": "container:model",
+                            "data": {"model": model, "status": status},
+                        },
                     )
 
                     if status == "start":

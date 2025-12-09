@@ -20,7 +20,7 @@ async def get_model_container(user=Depends(get_verified_user)):
 
 @router.post("/model/toggle")
 async def toggle_model_container(form_data: ModelForm, user=Depends(get_verified_user)):
-    await container.toggle_model_container(form_data.model)
+    await container.toggle_model_container(form_data.model, emit=True)
 
 
 @router.get("/model/{model}")
