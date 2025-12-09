@@ -104,18 +104,52 @@
 {#if loading}
 	<Spinner />
 {:else}
-	<div>
+	<div class={'flex flex-col gap-y-4'}>
 		{#each modelContainers as container (container.model)}
-			<div>
-				{container.model}
-				{container.status}
+			<div class="flex border-[1px] rounded-4xl justify-around items-center h-12">
+				<div class="flex items-center">
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						height="40px"
+						viewBox="0 -960 960 960"
+						width="40px"
+						fill="currentColor"
+					>
+						<path
+							d="M446.67-163.67V-461l-260-150.33V-314l260 150.33Zm66.66 0 260-150.33v-298l-260 150.89v297.44ZM480-518l256.33-149L480-815.33 223-667l257 149ZM153.33-256q-15.83-9.28-24.58-24.48-8.75-15.19-8.75-33.19v-332.66q0-18 8.75-33.19 8.75-15.2 24.58-24.48l293.34-169q15.88-9 33.44-9 17.56 0 33.22 9l293.34 169q15.83 9.28 24.58 24.48 8.75 15.19 8.75 33.19v332.66q0 18-8.75 33.19-8.75 15.2-24.58 24.48L513.33-87q-15.88 9-33.44 9-17.56 0-33.22-9L153.33-256ZM480-480Z"
+						/>
+					</svg>
+					<div class="flex flex-col">
+						<div class="flex">
+							<h3 class="font-bold">
+								{container.model}
+							</h3>
+							<span>
+								{container.status}
+							</span>
+						</div>
+						<span>test text</span>
+					</div>
+				</div>
 
-				<Switch
-					bind:state={container.active}
-					on:change={async () => {
-						toggleModelContainerHandler(container);
-					}}
-				/>
+				<div class="flex items-center gap-x-2">
+					<span>
+						<label for="port">port: </label>
+						<input name="port" type="number" placeholder="8000" />
+					</span>
+
+					<span>
+						<label for="device_ids">device_ids: </label>
+						<input name="device_ids" placeholder="0,4,5" />
+					</span>
+
+					<Switch
+						bind:state={container.active}
+						on:change={async () => {
+							toggleModelContainerHandler(container);
+						}}
+					/>
+				</div>
 			</div>
 		{/each}
 	</div>
