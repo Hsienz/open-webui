@@ -80,8 +80,6 @@ class Container:
         else:
             try:
                 container = self.client.containers.get(model)
-                if container is None:
-                    raise errors.NotFound(model)
             except errors.NotFound:
                 return {"status": "not exist"}
 
