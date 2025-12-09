@@ -120,11 +120,11 @@
 						/>
 					</svg>
 					<div class="flex flex-col">
-						<div class="flex">
+						<div class="flex gap-2">
 							<h4 class="font-bold">
 								{container.model}
 							</h4>
-							<span>
+							<span class="text-xs mt-auto">
 								{container.status}
 							</span>
 						</div>
@@ -133,14 +133,14 @@
 				</div>
 
 				<div class="flex items-center gap-x-2">
-					<span class="flex w-16">
-						<label for="port">port: </label>
-						<input name="port" type="number" placeholder="8000" />
+					<span class="w-16">
+						<label for="port">port:</label>
+						<input name="port" type="number" placeholder="8000" class="w-full" />
 					</span>
 
-					<span class="flex w-16">
-						<label for="device_ids">device_ids: </label>
-						<input name="device_ids" placeholder="0,4,5" />
+					<span class="w-16">
+						<label for="device_ids">device_ids:</label>
+						<input name="device_ids" placeholder="0,4,5" class="w-full" />
 					</span>
 
 					<Switch
