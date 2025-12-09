@@ -75,6 +75,6 @@
 
 <div>
 	{#each modelContainers as container (container.model)}
-		<span>{container.model} {container.status}</span>
+		<div>{container.model} {container.status}</div>
 	{/each}
 </div>

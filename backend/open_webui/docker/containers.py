@@ -73,16 +73,20 @@ class Container:
                         break
 
     def get_model_container_status(self, model: str, use_cache: bool = False):
-        handler = self.model_mapping if use_cache else self.client.containers
-        try:
-            container = handler.get(model)
-            if container is None:
-                raise errors.NotFound(model)
-        except errors.NotFound:
-            return {"status": "not exist"}
+        if use_cache:
+            if model in self.model_mapping:
+                container = self.model_mapping.get(model)
+                return {"status": "close" if container is None else container.status}
+        else:
+            try:
+                container = self.client.containers.get(model)
+                if container is None:
+                    raise errors.NotFound(model)
+            except errors.NotFound:
+                return {"status": "not exist"}
 
-        self.model_mapping[model] = container
-        return {"status": container.status}
+            self.model_mapping[model] = container
+            return {"status": container.status}
 
     @classmethod
     def parse_model_container_name_to_model(cls, name: str) -> str:
