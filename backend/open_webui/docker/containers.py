@@ -79,7 +79,6 @@ class Container:
             if container is None:
                 raise errors.NotFound(model)
         except errors.NotFound:
-            self.model_mapping[model] = None
             return {"status": "not exist"}
 
         self.model_mapping[model] = container
