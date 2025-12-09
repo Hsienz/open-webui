@@ -56,10 +56,13 @@
 				});
 
 			if (containerInfo) {
-				modelContainers.push({
-					model,
-					status: containerInfo.status
-				});
+				modelContainers = [
+					...modelContainers,
+					{
+						model: model,
+						status: containerInfo.status
+					}
+				];
 			}
 		}
 		loading = false;
@@ -72,6 +75,6 @@
 
 <div>
 	{#each modelContainers as container (container.model)}
-		{container.model}
+		<span>{container.model} {container.status}</span>
 	{/each}
 </div>
