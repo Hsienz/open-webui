@@ -140,12 +140,12 @@
 						<input id="port" name="port" type="number" placeholder="8000" class="w-full" required />
 					</span>
 
-					<span class="w-16">
+					<span class="w-20">
 						<label for="device_ids">device_ids*</label>
 						<input id="device_ids" name="device_ids" placeholder="0,1,4" class="w-full" required />
 					</span>
 
-					<span class="w-16">
+					<span class="w-20">
 						<label for="max_tokens">max_tokens</label>
 						<input id="max_tokens" name="max_tokens" placeholder="8096" class="w-full" />
 					</span>
