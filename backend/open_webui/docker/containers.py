@@ -90,14 +90,14 @@ class Container:
         if emit:
             for event in self.client.events(decode=True):
                 log.debug(event)
-                id = event["id"]
-                status = event["status"]
+                id = event.get("id")
+                status = event.get("status")
                 if id == container.id:
                     await sio.emit(
                         "container",
                         {
                             "type": "container:model",
-                            "data": {"model": model, "status": status},
+                            "data": {"model": model, "status": status, "id": id},
                         },
                     )
 
