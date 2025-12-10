@@ -12,8 +12,8 @@
 		model: string;
 		status: string;
 		is_active: boolean;
-		port: number | '';
-		gpus: string;
+		port: number | undefined;
+		gpus: string | undefined;
 	}
 	let modelContainers: ModelContainer[] = [];
 	let modelContainerMapping: Map<string, number> = new Map();
@@ -95,7 +95,7 @@
 	});
 
 	const toggleModelContainerHandler = async (container: ModelContainer) => {
-		if (container.port == '') {
+		if (container.port == undefined) {
 			toast.error('Port is required');
 			container.is_active = false;
 			modelContainers = [...modelContainers];
@@ -103,8 +103,8 @@
 		}
 		const formData = new FormData();
 		formData.set('port', container.port.toString());
-		if (container.gpus.length != 0) {
-			formData.set('gpus', `device=${container.gpus.trim()}`);
+		if (container.gpus?.length != 0) {
+			formData.set('gpus', `device=${container.gpus?.trim()}`);
 		}
 		formData.set('model', container.model);
 		const res = await fetch(`${WEBUI_API_BASE_URL}/containers/model/toggle`, {
