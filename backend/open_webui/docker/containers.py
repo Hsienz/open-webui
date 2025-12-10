@@ -36,7 +36,7 @@ class Container:
                     "mode": "ro",
                 },
             },
-            **{k: v for (k, v) in kwargs.items() if v is not None},
+            **{k: v for k, v in kwargs.items() if v is not None},
         )
 
         self.model_mapping[model] = container
