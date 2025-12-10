@@ -103,16 +103,21 @@
 			modelContainers = [...modelContainers];
 			return;
 		}
-		const formData = new FormData();
-		formData.set('port', container.port.toString());
-		if (container.gpus?.length != 0) {
-			formData.set('gpus', `device=${container.gpus?.trim()}`);
-		}
-		formData.set('model', container.model);
+		let data = {
+			port: container.port,
+			gpus: container.gpus ? `device=${container.gpus?.trim()}` : undefined,
+			model: container.model
+		};
+		// data.port = container.port.toString();
+		// if (container.gpus?.length != 0) {
+		// 	data.set('gpus');
+		// }
+		// data.set('model', container.model);
 		const res = await fetch(`${WEBUI_API_BASE_URL}/containers/model/toggle`, {
 			method: 'POST',
-			body: formData,
+			body: JSON.stringify(data),
 			headers: {
+				'Content-Type': 'application/json',
 				Authorization: `Bearer ${token}`
 			}
 		}).catch(async (e) => {
