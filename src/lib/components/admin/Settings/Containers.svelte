@@ -155,9 +155,9 @@
 
 				<div class="flex items-center gap-x-2">
 					<span class="w-16">
-						<label for="port">port*</label>
+						<label for={`${container.model}-port`}>port*</label>
 						<input
-							id="port"
+							id={`${container.model}-port`}
 							name="port"
 							type="number"
 							min="{0},"
@@ -171,9 +171,9 @@
 					</span>
 
 					<span class="w-16">
-						<label for="gpus">gpus</label>
+						<label for={`${container.model}-gpus`}>gpus</label>
 						<input
-							id="gpus"
+							id={`${container.model}-gpus`}
 							name="gpus"
 							placeholder="0,1,4"
 							class="w-full"
