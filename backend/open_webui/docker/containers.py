@@ -79,7 +79,9 @@ class Container:
 
             command = [str(c) for c in command]
             container = await self.run_model_container(
-                model=model, command=command, **kwargs
+                model=model,
+                command=command,
+                **kwargs,
             )
 
             if container.id is None:
