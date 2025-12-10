@@ -30,7 +30,7 @@ async def toggle_model_container(request: ModelForm, user=Depends(get_verified_u
         model=request.model,
         gpus="device={}".format(request.gpus) if request.gpus else None,
         emit=True,
-        ports={request.port: port},
+        ports={"{}/tcp".format(port): request.port},
         port=port,
         tensor_parallel_size=request.tensor_parallel_size,
         tool_call_parser=request.tool_call_parser,
