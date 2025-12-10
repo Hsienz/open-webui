@@ -77,6 +77,7 @@ class Container:
                 command.append("--tool-call-parser")
                 command.append(tool_call_parser)
 
+            command = [str(c) for c in command]
             container = await self.run_model_container(
                 model=model, command=command, **kwargs
             )
