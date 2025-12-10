@@ -97,6 +97,7 @@
 		if (port == '') {
 			toast.error('Port is required');
 			container.is_active = false;
+			modelContainers = [...modelContainers];
 			return;
 		}
 		const formData = new FormData();
