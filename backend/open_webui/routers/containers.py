@@ -24,16 +24,16 @@ async def get_model_container(user=Depends(get_verified_user)):
 
 
 @router.post("/model/toggle")
-async def toggle_model_container(form_data: ModelForm, user=Depends(get_verified_user)):
+async def toggle_model_container(request: ModelForm, user=Depends(get_verified_user)):
     port = 8000
     await container.toggle_model_container(
-        form_data.model,
-        gpus="device={}".format(form_data.gpus),
+        model=request.model,
+        gpus="device={}".format(request.gpus) if request.gpus else None,
         emit=True,
-        ports={form_data.port, port},
+        ports={request.port, port},
         port=port,
-        tensor_parallel_size=form_data.tensor_parallel_size,
-        tool_call_parser=form_data.tool_call_parser,
+        tensor_parallel_size=request.tensor_parallel_size,
+        tool_call_parser=request.tool_call_parser,
     )
 
 
