@@ -12,6 +12,8 @@
 		model: string;
 		status: string;
 		is_active: boolean;
+		port: number | '';
+		gpus: string;
 	}
 	let modelContainers: ModelContainer[] = [];
 	let modelContainerMapping: Map<string, number> = new Map();
@@ -93,17 +95,16 @@
 	});
 
 	const toggleModelContainerHandler = async (container: ModelContainer) => {
-		gpus = gpus.trim();
-		if (port == '') {
+		if (container.port == '') {
 			toast.error('Port is required');
 			container.is_active = false;
 			modelContainers = [...modelContainers];
 			return;
 		}
 		const formData = new FormData();
-		formData.set('--port', port.toString());
-		if (gpus.length != 0) {
-			formData.set('--gpu', `device=${gpus.trim()}`);
+		formData.set('port', container.port.toString());
+		if (container.gpus.length != 0) {
+			formData.set('gpus', `device=${container.gpus.trim()}`);
 		}
 		formData.set('model', container.model);
 		const res = await fetch(`${WEBUI_API_BASE_URL}/containers/model/toggle`, {
@@ -117,9 +118,6 @@
 			container.is_active = false;
 		});
 	};
-
-	let port: number | '' = '';
-	let gpus = '';
 </script>
 
 <div>
@@ -170,7 +168,7 @@
 							placeholder="8000"
 							class="w-full"
 							disabled={container.is_active}
-							bind:value={port}
+							bind:value={container.port}
 							required
 						/>
 					</span>
@@ -183,7 +181,7 @@
 							placeholder="0,1,4"
 							class="w-full"
 							disabled={container.is_active}
-							bind:value={gpus}
+							bind:value={container.gpus}
 						/>
 					</span>
 

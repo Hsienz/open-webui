@@ -23,10 +23,14 @@ class Container:
             except errors.NotFound:
                 self.model_mapping[model] = None
 
-    async def run_model_container(self, model: str, **kwargs):
-        command = ["--model", model]
+    async def run_model_container(self, **kwargs):
+        model = kwargs["model"]
+        command = []
         for k, v in kwargs:
-            command.append(k)
+            if v is None:
+                continue
+
+            command.append("--{}".format(k))
             command.append(v)
 
         container = self.client.containers.run(
@@ -46,12 +50,13 @@ class Container:
 
         return container
 
-    async def toggle_model_container(self, model: str, emit=False, **kwargs):
+    async def toggle_model_container(self, emit=False, **kwargs):
+        model = kwargs["model"]
         if container := self.model_mapping.get(model):
             container.stop()
             self.model_mapping[model] = None
         else:
-            container = await self.run_model_container(model, **kwargs)
+            container = await self.run_model_container(**kwargs)
 
             if container.id is None:
                 raise Error(
