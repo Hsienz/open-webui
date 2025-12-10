@@ -108,11 +108,6 @@
 			gpus: container.gpus ? `device=${container.gpus?.trim()}` : undefined,
 			model: container.model
 		};
-		// data.port = container.port.toString();
-		// if (container.gpus?.length != 0) {
-		// 	data.set('gpus');
-		// }
-		// data.set('model', container.model);
 		const res = await fetch(`${WEBUI_API_BASE_URL}/containers/model/toggle`, {
 			method: 'POST',
 			body: JSON.stringify(data),

@@ -24,9 +24,7 @@ class Container:
             except errors.NotFound:
                 self.model_mapping[model] = None
 
-    async def run_model_container(self, command=None, **kwargs):
-        model = kwargs["model"]
-
+    async def run_model_container(self, model: str, command=None, **kwargs):
         container = self.client.containers.run(
             image="vllm/vllm-openai:latest",
             command=command,
@@ -55,7 +53,6 @@ class Container:
         emit=False,
         **kwargs,
     ):
-        model = kwargs["model"]
         if container := self.model_mapping.get(model):
             container.stop()
             self.model_mapping[model] = None
@@ -80,7 +77,9 @@ class Container:
                 command.append("--tool-call-parser")
                 command.append(tool_call_parser)
 
-            container = await self.run_model_container(command=command, **kwargs)
+            container = await self.run_model_container(
+                model=model, command=command, **kwargs
+            )
 
             if container.id is None:
                 raise Error(
