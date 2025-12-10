@@ -13,9 +13,9 @@ router = APIRouter()
 class ModelForm(BaseModel):
     model: str
     port: int
-    gpus: Optional[str]
-    tool_call_parser: Optional[str]
-    tensor_parallel_size: Optional[int]
+    gpus: Optional[str] = None
+    tool_call_parser: Optional[str] = None
+    tensor_parallel_size: Optional[int] = None
 
 
 @router.get("/models")

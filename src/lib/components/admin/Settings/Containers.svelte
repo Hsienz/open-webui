@@ -80,7 +80,9 @@
 					{
 						model: model,
 						status: containerInfo.status,
-						is_active: containerInfo.status === 'start'
+						is_active: containerInfo.status === 'start',
+						port: undefined,
+						gpus: undefined
 					}
 				];
 
