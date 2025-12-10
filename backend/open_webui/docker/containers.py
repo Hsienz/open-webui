@@ -31,8 +31,8 @@ class Container:
             detach=True,
             remove=True,
             volumes={
-                "~/.cache/huggingface": {
-                    "bind": "/root/.cache/hugginface",
+                "/root/.cache/huggingface": {
+                    "bind": "/home/user/.cache/hugginface",
                     "mode": "ro",
                 },
             },
