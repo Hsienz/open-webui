@@ -5,11 +5,13 @@
 	import Switch from '$lib/components/common/Switch.svelte';
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import { getContext } from 'svelte';
+	import { contains } from 'vega-lite';
+	import { toast } from 'svelte-sonner';
 
 	interface ModelContainer {
 		model: string;
 		status: string;
-		active: boolean;
+		is_active: boolean;
 	}
 	let modelContainers: ModelContainer[] = [];
 	let modelContainerMapping: Map<string, number> = new Map();
@@ -28,7 +30,7 @@
 		if (type === 'container:model') {
 			container.status = data?.status;
 			if (data?.status == 'start') {
-				container.active = true;
+				container.is_active = true;
 			}
 			modelContainers = [...modelContainers];
 		}
@@ -76,7 +78,7 @@
 					{
 						model: model,
 						status: containerInfo.status,
-						active: containerInfo.status === 'start'
+						is_active: containerInfo.status === 'start'
 					}
 				];
 
@@ -91,7 +93,16 @@
 	});
 
 	const toggleModelContainerHandler = async (container: ModelContainer) => {
+		gpus = gpus.trim();
+		if (port == '') {
+			toast.error('Port is required');
+			return;
+		}
 		const formData = new FormData();
+		formData.set('--port', port.toString());
+		if (gpus.length != 0) {
+			formData.set('--gpu', `device=${gpus.trim()}`);
+		}
 		formData.set('model', container.model);
 		await fetch(`${WEBUI_API_BASE_URL}/containers/model/toggle`, {
 			method: 'POST',
@@ -101,6 +112,9 @@
 			}
 		});
 	};
+
+	let port: number | '' = '';
+	let gpus = '';
 </script>
 
 <div>
@@ -142,21 +156,34 @@
 				<div class="flex items-center gap-x-2">
 					<span class="w-16">
 						<label for="port">port*</label>
-						<input id="port" name="port" type="number" placeholder="8000" class="w-full" required />
+						<input
+							id="port"
+							name="port"
+							type="number"
+							min="{0},"
+							max="{65535},"
+							placeholder="8000"
+							class="w-full"
+							disabled={container.is_active}
+							bind:value={port}
+							required
+						/>
 					</span>
 
-					<span class="w-20">
-						<label for="device_ids">device_ids*</label>
-						<input id="device_ids" name="device_ids" placeholder="0,1,4" class="w-full" required />
-					</span>
-
-					<span class="w-20">
-						<label for="max_tokens">max_tokens</label>
-						<input id="max_tokens" name="max_tokens" placeholder="8096" class="w-full" />
+					<span class="w-16">
+						<label for="gpus">gpus</label>
+						<input
+							id="gpus"
+							name="gpus"
+							placeholder="0,1,4"
+							class="w-full"
+							disabled={container.is_active}
+							bind:value={gpus}
+						/>
 					</span>
 
 					<Switch
-						bind:state={container.active}
+						bind:state={container.is_active}
 						on:change={async () => {
 							toggleModelContainerHandler(container);
 						}}
