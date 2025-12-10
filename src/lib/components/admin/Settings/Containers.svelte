@@ -96,6 +96,7 @@
 		gpus = gpus.trim();
 		if (port == '') {
 			toast.error('Port is required');
+			container.is_active = false;
 			return;
 		}
 		const formData = new FormData();
@@ -104,12 +105,15 @@
 			formData.set('--gpu', `device=${gpus.trim()}`);
 		}
 		formData.set('model', container.model);
-		await fetch(`${WEBUI_API_BASE_URL}/containers/model/toggle`, {
+		const res = await fetch(`${WEBUI_API_BASE_URL}/containers/model/toggle`, {
 			method: 'POST',
 			body: formData,
 			headers: {
 				Authorization: `Bearer ${token}`
 			}
+		}).catch(async (e) => {
+			toast.error(e);
+			container.is_active = false;
 		});
 	};
 
