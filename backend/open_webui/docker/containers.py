@@ -101,7 +101,7 @@ class Container:
                         },
                     )
 
-                    if status == "start":
+                    if status == "exec_start" or status == "exec_die":
                         break
 
     def get_model_container_status(self, model: str, use_cache: bool = False):
