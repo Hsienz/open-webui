@@ -34,13 +34,15 @@ async def toggle_model_container(request: ModelForm, user=Depends(get_verified_u
         port=port,
         tensor_parallel_size=request.tensor_parallel_size,
         tool_call_parser=request.tool_call_parser,
-        device_requests=DeviceRequest(
-            driver="nvidia",
-            capabilities=["gpu"],
-            device_ids=[id.strip() for id in request.gpus.split(",")]
-            if request.gpus is not None
-            else "all",
-        ),
+        device_requests=[
+            DeviceRequest(
+                driver="nvidia",
+                capabilities=["gpu"],
+                device_ids=[id.strip() for id in request.gpus.split(",")]
+                if request.gpus is not None
+                else "all",
+            )
+        ],
     )
 
 
