@@ -7,6 +7,7 @@ from docker.models.containers import Container as DockerContainer
 import os
 from fastapi import HTTPException
 from open_webui.socket.main import sio
+from starlette.datastructures import CommaSeparatedStrings
 
 
 log = logging.getLogger(__name__)
@@ -23,15 +24,8 @@ class Container:
             except errors.NotFound:
                 self.model_mapping[model] = None
 
-    async def run_model_container(self, **kwargs):
+    async def run_model_container(self, command=None, **kwargs):
         model = kwargs["model"]
-        command = []
-        for k, v in kwargs:
-            if v is None:
-                continue
-
-            command.append("--{}".format(k))
-            command.append(v)
 
         container = self.client.containers.run(
             image="vllm/vllm-openai:latest",
@@ -44,19 +38,49 @@ class Container:
                     "mode": "ro",
                 },
             },
+            **kwargs,
         )
 
         self.model_mapping[model] = container
 
         return container
 
-    async def toggle_model_container(self, emit=False, **kwargs):
+    async def toggle_model_container(
+        self,
+        model: str,
+        port: int,
+        gpu_memory_utilization: Optional[float] = None,
+        tensor_parallel_size: Optional[int] = None,
+        tool_call_parser: Optional[str] = None,
+        emit=False,
+        **kwargs,
+    ):
         model = kwargs["model"]
         if container := self.model_mapping.get(model):
             container.stop()
             self.model_mapping[model] = None
         else:
-            container = await self.run_model_container(**kwargs)
+            command = []
+            command.append("--model")
+            command.append(model)
+
+            command.append("--port")
+            command.append(port)
+
+            command.append("--enable-auto-tool")
+            if gpu_memory_utilization is not None:
+                command.append("--gpu_memory_utilization")
+                command.append(gpu_memory_utilization)
+
+            if tensor_parallel_size is not None:
+                command.append("--tensor_parallel_size")
+                command.append(tensor_parallel_size)
+
+            if tool_call_parser is not None:
+                command.append("--tool-call-parser")
+                command.append(tool_call_parser)
+
+            container = await self.run_model_container(command=command, **kwargs)
 
             if container.id is None:
                 raise Error(

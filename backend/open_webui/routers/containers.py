@@ -14,6 +14,8 @@ class ModelForm(BaseModel):
     model: str
     port: int
     gpus: Optional[str]
+    tool_call_parser: Optional[str]
+    tensor_parallel_size: Optional[int]
 
 
 @router.get("/models")
@@ -23,8 +25,15 @@ async def get_model_container(user=Depends(get_verified_user)):
 
 @router.post("/model/toggle")
 async def toggle_model_container(form_data: ModelForm, user=Depends(get_verified_user)):
+    port = 8000
     await container.toggle_model_container(
-        form_data.model, port=form_data.port, gpus=form_data.gpus, emit=True
+        form_data.model,
+        gpus="device={}".format(form_data.gpus),
+        emit=True,
+        ports={form_data.port, port},
+        port=port,
+        tensor_parallel_size=form_data.tensor_parallel_size,
+        tool_call_parser=form_data.tool_call_parser,
     )
 
 
