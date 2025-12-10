@@ -37,7 +37,7 @@ async def toggle_model_container(request: ModelForm, user=Depends(get_verified_u
         device_requests=[
             DeviceRequest(
                 driver="nvidia",
-                capabilities=["gpu"],
+                capabilities=[["gpu"]],
                 device_ids=[id.strip() for id in request.gpus.split(",")]
                 if request.gpus is not None
                 else "all",
