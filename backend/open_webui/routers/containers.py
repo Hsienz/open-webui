@@ -29,7 +29,6 @@ async def toggle_model_container(request: ModelForm, user=Depends(get_verified_u
     port = 8000
     await container.toggle_model_container(
         model=request.model,
-        gpus="device={}".format(request.gpus) if request.gpus else None,
         emit=True,
         ports={"{}/tcp".format(port): request.port},
         port=port,
