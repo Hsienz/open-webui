@@ -32,7 +32,7 @@ class Container:
             remove=True,
             volumes={
                 "/root/.cache/huggingface": {
-                    "bind": "/home/user/.cache/hugginface",
+                    "bind": "/root/.cache/hugginface",
                     "mode": "ro",
                 },
             },

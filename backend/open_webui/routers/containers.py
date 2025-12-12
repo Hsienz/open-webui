@@ -14,7 +14,7 @@ router = APIRouter()
 class ModelForm(BaseModel):
     model: str
     port: int
-    gpus: Optional[str] = None
+    device_ids: Optional[str] = None
     tool_call_parser: Optional[str] = None
     tensor_parallel_size: Optional[int] = None
 
@@ -38,9 +38,10 @@ async def toggle_model_container(request: ModelForm, user=Depends(get_verified_u
             DeviceRequest(
                 driver="nvidia",
                 capabilities=[["gpu"]],
-                device_ids=[id.strip() for id in request.gpus.split(",")]
-                if request.gpus is not None
-                else "all",
+                device_ids=[id.strip() for id in request.device_ids.split(",")]
+                if request.device_ids is not None
+                else None,
+                count=-1 if request.device_ids is None else None,
             )
         ],
     )

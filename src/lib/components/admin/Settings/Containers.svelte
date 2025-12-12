@@ -13,7 +13,7 @@
 		status: string;
 		is_active: boolean;
 		port: number | undefined;
-		gpus: string | undefined;
+		device_ids: string | undefined;
 	}
 	let modelContainers: ModelContainer[] = [];
 	let modelContainerMapping: Map<string, number> = new Map();
@@ -82,7 +82,7 @@
 						status: containerInfo.status,
 						is_active: containerInfo.status === 'start',
 						port: undefined,
-						gpus: undefined
+						device_ids: undefined
 					}
 				];
 
@@ -105,7 +105,7 @@
 		}
 		let data = {
 			port: container.port,
-			gpus: container.gpus ? `device=${container.gpus?.trim()}` : undefined,
+			gpus: container.device_ids ? `device=${container.device_ids?.trim()}` : undefined,
 			model: container.model
 		};
 		const res = await fetch(`${WEBUI_API_BASE_URL}/containers/model/toggle`, {
@@ -175,15 +175,15 @@
 						/>
 					</span>
 
-					<span class="w-16">
-						<label for={`${container.model}-gpus`}>gpus</label>
+					<span class="w-20">
+						<label for={`${container.model}-device-ids`}>device_ids</label>
 						<input
-							id={`${container.model}-gpus`}
-							name="gpus"
+							id={`${container.model}-device-ids`}
+							name="deuvce-ids"
 							placeholder="0,1,4"
 							class="w-full"
 							disabled={container.is_active}
-							bind:value={container.gpus}
+							bind:value={container.device_ids}
 						/>
 					</span>
 
