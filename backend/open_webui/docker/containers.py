@@ -65,6 +65,8 @@ class Container:
             command.append(port)
 
             command.append("--enable-auto-tool")
+            command.append("--tool-call-parser")
+            command.append("hermes")
             if gpu_memory_utilization is not None:
                 command.append("--gpu_memory_utilization")
                 command.append(gpu_memory_utilization)
