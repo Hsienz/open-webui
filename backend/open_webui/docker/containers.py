@@ -102,7 +102,7 @@ class Container:
 
     async def emit_container_events(self, container, model):
         try:
-            async for event in self.client.events(decode=True):
+            for event in self.client.events(decode=True):
                 log.debug(event)
                 id = event.get("id")
                 status = event.get("status")
