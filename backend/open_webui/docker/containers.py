@@ -2,6 +2,7 @@ import asyncio
 from base64 import decode
 from copy import Error
 import logging
+import threading
 from typing import Optional
 import docker
 from docker import errors
@@ -100,32 +101,34 @@ class Container:
                 emit_timeout,
             )
 
+    def docker_event_thread(self, queue, loop):
+        for event in self.client.events(decode=True):
+            asyncio.run_coroutine_threadsafe(queue.put(event), loop)
+
     async def emit_container_events(self, container, model):
         loop = asyncio.get_running_loop()
+        queue = asyncio.Queue()
 
-        try:
-            # Run the blocking Docker events iterator in a thread
-            def blocking_iter():
-                return self.client.events(decode=True)
+        threading.Thread(
+            target=self.docker_event_thread, args=(queue, loop), daemon=True
+        ).start()
 
-            for event in await loop.run_in_executor(None, blocking_iter):
-                log.debug(event)
-                id = event.get("id")
-                status = event.get("status")
-                if id == container.id:
-                    await sio.emit(
-                        "container",
-                        {
-                            "type": "container:model",
-                            "data": {"model": model, "status": status, "id": id},
-                        },
-                    )
+        while True:
+            event = await queue.get()
+            log.debug(event)
+            id = event.get("id")
+            status = event.get("status")
+            if id == container.id:
+                await sio.emit(
+                    "container",
+                    {
+                        "type": "container:model",
+                        "data": {"model": model, "status": status, "id": id},
+                    },
+                )
 
-                    if status in ("exec_start", "exec_die"):
-                        break
-
-        except Exception as e:
-            log.error(f"Error while emitting container events: {e}")
+                if status in ("exec_start", "exec_die"):
+                    break
 
     def get_model_container_status(self, model: str, use_cache: bool = False):
         if use_cache:
