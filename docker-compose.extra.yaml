@@ -9,10 +9,7 @@ services:
       - ./backend:/app/backend
       - ./src:/app/src
       - open-webui:/app/backend/data
-      # where your huggingface model download
-      # you need to insure model folder name followed this format: models--<provider>--<name>
-      # e.g models--Qwen--Qwen3-0.6B
-      - ${MODELS_DIR:-${HOME}/.cache/huggingface/hub}:/root/.cache/huggingface/hub
+      - ${HF_HOME:-${HOME}/.cache/huggingface}:/root/.cache/huggingface
       - ${DOCKER_HOST:-/var/run/docker.sock}:/var/run/docker.sock
     ports:
       - ${OPEN_WEBUI_PORT-3000}:8080

@@ -144,10 +144,7 @@ class Container:
         if use_cache:
             return sorted(container.model_mapping.keys())
         else:
-            path = os.getenv("MODELS_DIR")
-            if not path:
-                log.error("env MODELS_DIR not set")
-                return []
+            path = "/root/.cache/huggingface/hub"
             dirs = []
             for name in os.listdir(path):
                 if not os.path.isdir(os.path.join(path, name)):
