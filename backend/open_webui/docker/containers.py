@@ -101,8 +101,14 @@ class Container:
             )
 
     async def emit_container_events(self, container, model):
+        loop = asyncio.get_running_loop()
+
         try:
-            for event in self.client.events(decode=True):
+            # Run the blocking Docker events iterator in a thread
+            def blocking_iter():
+                return self.client.events(decode=True)
+
+            for event in await loop.run_in_executor(None, blocking_iter):
                 log.debug(event)
                 id = event.get("id")
                 status = event.get("status")
