@@ -31,7 +31,7 @@ async def toggle_model_container(request: ModelForm, user=Depends(get_verified_u
     await container.toggle_model_container(
         model=Container.parse_model_container_name_to_model(request.model),
         name=request.model,
-        emit=True,
+        emit_timeout=120,
         ports={"{}/tcp".format(port): request.port},
         port=port,
         tensor_parallel_size=request.tensor_parallel_size,

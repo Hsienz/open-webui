@@ -64,7 +64,12 @@
 		}
 
 		for (const [i, model] of modelList.entries()) {
-			const containerInfo = await fetch(`${WEBUI_API_BASE_URL}/containers/model/${model}`)
+			const containerInfo = await fetch(`${WEBUI_API_BASE_URL}/containers/model/${model}`, {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${token}`
+				}
+			})
 				.then(async (res) => {
 					if (!res.ok) throw await res.json();
 					return res.json();

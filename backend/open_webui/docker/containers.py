@@ -1,3 +1,5 @@
+import asyncio
+from base64 import decode
 from copy import Error
 import logging
 from typing import Optional
@@ -7,6 +9,7 @@ from docker.models.containers import Container as DockerContainer
 import os
 from fastapi import HTTPException
 from open_webui.socket.main import sio
+from redis import client
 from starlette.datastructures import CommaSeparatedStrings
 
 
@@ -50,7 +53,7 @@ class Container:
         gpu_memory_utilization: Optional[float] = None,
         tensor_parallel_size: Optional[int] = None,
         tool_call_parser: Optional[str] = None,
-        emit=False,
+        emit_timeout=0,
         **kwargs,
     ):
         if container := self.model_mapping.get(model):
@@ -91,8 +94,15 @@ class Container:
                     "Model Container do not create successfully for {}".format(model)
                 )
 
-        if emit:
-            for event in self.client.events(decode=True):
+        if emit_timeout:
+            await asyncio.wait_for(
+                self.emit_container_events(container=container, model=model),
+                emit_timeout,
+            )
+
+    async def emit_container_events(self, container, model):
+        try:
+            async for event in self.client.events(decode=True):
                 log.debug(event)
                 id = event.get("id")
                 status = event.get("status")
@@ -105,8 +115,11 @@ class Container:
                         },
                     )
 
-                    if status == "exec_start" or status == "exec_die":
+                    if status in ("exec_start", "exec_die"):
                         break
+
+        except Exception as e:
+            log.error(f"Error while emitting container events: {e}")
 
     def get_model_container_status(self, model: str, use_cache: bool = False):
         if use_cache:
@@ -131,7 +144,10 @@ class Container:
         if use_cache:
             return sorted(container.model_mapping.keys())
         else:
-            path = "/root/.cache/huggingface/hub"
+            path = os.getenv("MODELS_DIR")
+            if not path:
+                log.error("env MODELS_DIR not set")
+                return []
             dirs = []
             for name in os.listdir(path):
                 if not os.path.isdir(os.path.join(path, name)):
