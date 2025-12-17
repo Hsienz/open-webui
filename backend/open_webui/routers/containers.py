@@ -18,6 +18,7 @@ class ModelForm(BaseModel):
     device_ids: Optional[str] = None
     tool_call_parser: Optional[str] = None
     tensor_parallel_size: Optional[int] = None
+    gpu_memory_utilization: Optional[float] = None
 
 
 @router.get("/models")
@@ -35,6 +36,7 @@ async def toggle_model_container(request: ModelForm, user=Depends(get_verified_u
         port=port,
         tensor_parallel_size=request.tensor_parallel_size,
         tool_call_parser=request.tool_call_parser,
+        gpu_memory_utilization=request.gpu_memory_utilization,
         device_requests=[
             DeviceRequest(
                 driver="nvidia",
