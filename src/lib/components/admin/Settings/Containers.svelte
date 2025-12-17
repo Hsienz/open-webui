@@ -130,7 +130,8 @@
 			port: container.port,
 			gpus: container.device_ids ? `device=${container.device_ids?.trim()}` : undefined,
 			model: container.model,
-			gpu_memory_utilization: container.gpu_memory_utilization
+			gpu_memory_utilization: container.gpu_memory_utilization,
+			tensor_parallel_size: container.tensor_parallel_size
 		};
 		const res = await fetch(`${WEBUI_API_BASE_URL}/containers/model/toggle`, {
 			method: 'POST',
