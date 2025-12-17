@@ -15,6 +15,7 @@
 		port: number | undefined;
 		device_ids: string | undefined;
 		gpu_memory_utilization: number;
+		tensor_parallel_size: number;
 	}
 	let modelContainers: ModelContainer[] = [];
 	let modelContainerMapping: Map<string, number> = new Map();
@@ -89,7 +90,8 @@
 						is_active: containerInfo.status === 'start',
 						port: undefined,
 						device_ids: undefined,
-						gpu_memory_utilization: 0.9
+						gpu_memory_utilization: 0.9,
+						tensor_parallel_size: 1
 					}
 				];
 
@@ -209,7 +211,9 @@
 						/>
 					</span>
 
-					<span class="w-20 border-l-[1px] border-solid">
+					<span class="border-l-[1px] border-solid"></span>
+
+					<span class="w-24">
 						<label for={`${container.model}-gpu_memory_utilization`}>gpu_memory_utilization</label>
 						<input
 							id={`${container.model}-gpu_memory_utilization`}
@@ -218,6 +222,18 @@
 							class="w-full"
 							disabled={container.is_active}
 							bind:value={container.gpu_memory_utilization}
+						/>
+					</span>
+
+					<span class="w-24">
+						<label for={`${container.model}-tensor_parallel_size`}>tensor_parallel_size</label>
+						<input
+							id={`${container.model}-tensor_parallel_size`}
+							name="tensor_parallel_size"
+							placeholder="1"
+							class="w-full"
+							disabled={container.is_active}
+							bind:value={container.tensor_parallel_size}
 						/>
 					</span>
 
