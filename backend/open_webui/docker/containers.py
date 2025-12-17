@@ -30,7 +30,7 @@ class Container:
             except errors.NotFound:
                 self.model_mapping[model] = None
 
-    async def run_model_container(self, model: str, command=None, **kwargs):
+    def run_model_container(self, model: str, command=None, **kwargs):
         container = self.client.containers.run(
             image="vllm/vllm-openai:latest",
             command=command,
@@ -49,7 +49,7 @@ class Container:
 
         return container
 
-    async def toggle_model_container(
+    def toggle_model_container(
         self,
         model: str,
         port: int,
@@ -85,7 +85,7 @@ class Container:
                 command.append(tool_call_parser)
 
             command = [str(c) for c in command]
-            container = await self.run_model_container(
+            container = self.run_model_container(
                 model=model,
                 command=command,
                 **kwargs,
@@ -96,14 +96,10 @@ class Container:
                     "Model Container do not create successfully for {}".format(model)
                 )
 
-    def docker_event_thread(self, queue, loop):
-        for event in self.client.events(decode=True):
-            asyncio.run_coroutine_threadsafe(queue.put(event), loop)
-
     def start_emit_thread(self):
         if self.emit_thread is None or not self.emit_thread.is_alive():
             self.stop_emit = False
-            self.emit_thread = threading.Thread(target=self._run_async_emit())
+            self.emit_thread = threading.Thread(target=self._run_async_emit)
             self.emit_thread.start()
 
     def stop_emit_thread(self):
