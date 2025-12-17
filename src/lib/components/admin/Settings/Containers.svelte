@@ -14,6 +14,7 @@
 		is_active: boolean;
 		port: number | undefined;
 		device_ids: string | undefined;
+		gpu_memory_utilization: number;
 	}
 	let modelContainers: ModelContainer[] = [];
 	let modelContainerMapping: Map<string, number> = new Map();
@@ -87,7 +88,8 @@
 						status: containerInfo.status,
 						is_active: containerInfo.status === 'start',
 						port: undefined,
-						device_ids: undefined
+						device_ids: undefined,
+						gpu_memory_utilization: 0.9
 					}
 				];
 
@@ -125,7 +127,8 @@
 		let data = {
 			port: container.port,
 			gpus: container.device_ids ? `device=${container.device_ids?.trim()}` : undefined,
-			model: container.model
+			model: container.model,
+			gpu_memory_utilization: container.gpu_memory_utilization
 		};
 		const res = await fetch(`${WEBUI_API_BASE_URL}/containers/model/toggle`, {
 			method: 'POST',
@@ -199,10 +202,22 @@
 						<input
 							id={`${container.model}-device-ids`}
 							name="deuvce-ids"
-							placeholder="0,1,4"
+							placeholder="0,1"
 							class="w-full"
 							disabled={container.is_active}
 							bind:value={container.device_ids}
+						/>
+					</span>
+
+					<span class="w-20 border-l-[1px] border-solid">
+						<label for={`${container.model}-gpu_memory_utilization`}>gpu_memory_utilization</label>
+						<input
+							id={`${container.model}-gpu_memory_utilization`}
+							name="gpu_memory_utilization"
+							placeholder="0.9"
+							class="w-full"
+							disabled={container.is_active}
+							bind:value={container.gpu_memory_utilization}
 						/>
 					</span>
 
