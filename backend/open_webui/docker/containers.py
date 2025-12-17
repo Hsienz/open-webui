@@ -117,10 +117,13 @@ class Container:
             if self.stop_emit:
                 self.stop_emit = False
                 break
-            log.debug(event)
-            name = event.get("name")
+            # log.debug(event)
+            actor = event.get("Actor", {})
+            attributes = actor.get("Attributes", {})
+            name = attributes.get("name")
             id = event.get("id")
             status = event.get("status")
+            log.debug({"id": id, "status": status, "name": name})
             await sio.emit(
                 "container",
                 {
