@@ -21,6 +21,8 @@ class Container:
     def __init__(self) -> None:
         self.client = docker.from_env()
         self.model_mapping: dict[str, Optional[DockerContainer]] = {}
+        self.emit_thread = None
+        self.stop_emit = False
 
         for model in Container.get_model_container_list():
             try:
@@ -54,7 +56,6 @@ class Container:
         gpu_memory_utilization: Optional[float] = None,
         tensor_parallel_size: Optional[int] = None,
         tool_call_parser: Optional[str] = None,
-        emit_timeout=0,
         **kwargs,
     ):
         if container := self.model_mapping.get(model):
@@ -95,40 +96,42 @@ class Container:
                     "Model Container do not create successfully for {}".format(model)
                 )
 
-        if emit_timeout:
-            await asyncio.wait_for(
-                self.emit_container_events(container=container, model=model),
-                emit_timeout,
-            )
-
     def docker_event_thread(self, queue, loop):
         for event in self.client.events(decode=True):
             asyncio.run_coroutine_threadsafe(queue.put(event), loop)
 
-    async def emit_container_events(self, container, model):
-        loop = asyncio.get_running_loop()
-        queue = asyncio.Queue()
+    def start_emit_thread(self):
+        if self.emit_thread is None or not self.emit_thread.is_alive():
+            self.stop_emit = False
+            self.emit_thread = threading.Thread(target=self._run_async_emit())
+            self.emit_thread.start()
 
-        threading.Thread(
-            target=self.docker_event_thread, args=(queue, loop), daemon=True
-        ).start()
+    def stop_emit_thread(self):
+        self.stop_emit = True
+        if self.emit_thread:
+            self.emit_thread.join()
 
-        while True:
-            event = await queue.get()
+        self.emit_thread = None
+
+    def _run_async_emit(self):
+        asyncio.run(self.emit_container_events())
+
+    async def emit_container_events(self):
+        for event in self.client.events(decode=True):
+            if self.stop_emit:
+                self.stop_emit = False
+                break
             log.debug(event)
+            name = event.get("name")
             id = event.get("id")
             status = event.get("status")
-            if id == container.id:
-                await sio.emit(
-                    "container",
-                    {
-                        "type": "container:model",
-                        "data": {"model": model, "status": status, "id": id},
-                    },
-                )
-
-                if status in ("exec_start", "exec_die"):
-                    break
+            await sio.emit(
+                "container",
+                {
+                    "type": "container:model",
+                    "data": {"name": name, "status": status, "id": id},
+                },
+            )
 
     def get_model_container_status(self, model: str, use_cache: bool = False):
         if use_cache:

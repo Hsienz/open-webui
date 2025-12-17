@@ -31,7 +31,6 @@ async def toggle_model_container(request: ModelForm, user=Depends(get_verified_u
     await container.toggle_model_container(
         model=Container.parse_model_container_name_to_model(request.model),
         name=request.model,
-        emit_timeout=120,
         ports={"{}/tcp".format(port): request.port},
         port=port,
         tensor_parallel_size=request.tensor_parallel_size,
@@ -52,3 +51,13 @@ async def toggle_model_container(request: ModelForm, user=Depends(get_verified_u
 @router.get("/model/{model}")
 async def get_container_status(model: str, user=Depends(get_verified_user)):
     return container.get_model_container_status(model, use_cache=True)
+
+
+@router.put("/emit/start")
+async def start_emit(user=Depends(get_verified_user)):
+    container.start_emit_thread()
+
+
+@router.put("emit/stop")
+async def stop_emit(user=Depends(get_verified_user)):
+    container.stop_emit_thread()

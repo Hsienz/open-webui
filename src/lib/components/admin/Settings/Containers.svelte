@@ -94,11 +94,25 @@
 				modelContainerMapping.set(model, i);
 			}
 		}
+
+		await fetch(`${WEBUI_API_BASE_URL}/containers/emit/start`, {
+			method: 'PUT',
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		});
+
 		loading = false;
 	});
 
 	onDestroy(async () => {
 		$socket?.off('container');
+		await fetch(`${WEBUI_API_BASE_URL}/containers/emit/stop`, {
+			method: 'PUT',
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		});
 	});
 
 	const toggleModelContainerHandler = async (container: ModelContainer) => {
