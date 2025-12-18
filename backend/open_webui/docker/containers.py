@@ -140,12 +140,10 @@ class Container:
                     evnet.set()
 
     async def _emit_model_container_info(self, name, status, id):
-        data = (
-            {
-                "type": "container:model",
-                "data": {"name": name, "status": status, "id": id},
-            },
-        )
+        data = {
+            "type": "container:model",
+            "data": {"name": name, "status": status, "id": id},
+        }
         log.debug(data)
         await sio.emit("container", data)
 
@@ -160,7 +158,6 @@ class Container:
             name = attributes.get("name")
             id = event.get("id")
             status = event.get("status")
-            log.debug({"id": id, "status": status, "name": name})
             await self._emit_model_container_info(name, status, id)
 
     def get_model_container_status(self, model: str):
