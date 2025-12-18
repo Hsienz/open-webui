@@ -58,7 +58,9 @@ class Container:
             self.log_thread.start()
 
             await self._wait_log_finish(event=event)
-            await self._emit_model_container_info(name=model, status="started", id=id)
+            await self._emit_model_container_info(
+                name=model, status="started", id=container.id
+            )
 
         return container
 
