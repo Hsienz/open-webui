@@ -12,6 +12,7 @@ from fastapi import HTTPException
 from open_webui.socket.main import sio
 from redis import client
 from starlette.datastructures import CommaSeparatedStrings
+import re
 
 
 log = logging.getLogger(__name__)
@@ -22,6 +23,7 @@ class Container:
         self.client = docker.from_env()
         self.model_mapping: dict[str, Optional[DockerContainer]] = {}
         self.emit_thread = None
+        self.log_thread = None
         self.stop_emit = False
 
         for model in Container.get_model_container_list():
@@ -30,7 +32,7 @@ class Container:
             except errors.NotFound:
                 self.model_mapping[model] = None
 
-    def run_model_container(self, model: str, command=None, **kwargs):
+    async def run_model_container(self, model: str, command=None, **kwargs):
         container = self.client.containers.run(
             image="vllm/vllm-openai:latest",
             command=command,
@@ -47,9 +49,24 @@ class Container:
 
         self.model_mapping[model] = container
 
+        if self.log_thread is None or not self.log_thread.is_alive():
+            event = threading.Event()
+            self.log_thread = threading.Thread(
+                target=self.follow_logs_until_match,
+                args=[model, r"Application startup complete\.$", event],
+            )
+            self.log_thread.start()
+
+            await self._wait_log_finish(event=event)
+            await self._emit_model_container_info(name=model, status="started", id=id)
+
         return container
 
-    def toggle_model_container(
+    async def _wait_log_finish(self, event: threading.Event):
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(None, event.wait)
+
+    async def toggle_model_container(
         self,
         model: str,
         port: int,
@@ -85,7 +102,7 @@ class Container:
                 command.append(tool_call_parser)
 
             command = [str(c) for c in command]
-            container = self.run_model_container(
+            container = await self.run_model_container(
                 model=model,
                 command=command,
                 **kwargs,
@@ -112,6 +129,26 @@ class Container:
     def _run_async_emit(self):
         asyncio.run(self.emit_container_events())
 
+    def follow_logs_until_match(self, name, re_str: str, evnet: threading.Event):
+        if container := self.model_mapping.get(name):
+            if container is None:
+                log.warning("container for %s not found", name)
+
+            for line in container.logs(stream=True, follow=True):
+                line = line.decode().strip()
+                if re.search(re_str, line):
+                    evnet.set()
+
+    async def _emit_model_container_info(self, name, status, id):
+        data = (
+            {
+                "type": "container:model",
+                "data": {"name": name, "status": status, "id": id},
+            },
+        )
+        log.debug(data)
+        await sio.emit("container", data)
+
     async def emit_container_events(self):
         for event in self.client.events(decode=True):
             if self.stop_emit:
@@ -124,13 +161,7 @@ class Container:
             id = event.get("id")
             status = event.get("status")
             log.debug({"id": id, "status": status, "name": name})
-            await sio.emit(
-                "container",
-                {
-                    "type": "container:model",
-                    "data": {"name": name, "status": status, "id": id},
-                },
-            )
+            await self._emit_model_container_info(name, status, id)
 
     def get_model_container_status(self, model: str):
         try:

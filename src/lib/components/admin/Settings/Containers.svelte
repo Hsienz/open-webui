@@ -86,7 +86,7 @@
 					{
 						model: model,
 						status: containerInfo.status,
-						is_active: containerInfo.status === 'start',
+						is_active: containerInfo.status === 'started',
 						port: undefined,
 						device_ids: undefined,
 						gpu_memory_utilization: 0.9,
