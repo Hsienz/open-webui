@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 class ContainerInfo:
     def __init__(self, container: Optional[DockerContainer]):
-        self.status = container.status if container else "not exist"
+        self.status = container.status if container else "closed"
         self.container = container
 
 
@@ -34,11 +34,7 @@ class Container:
         self.stop_emit = False
 
         for model in Container.get_model_container_list():
-            container = self.client.containers.get(model)
-            try:
-                self.container_mapping[model] = ContainerInfo(container)
-            except errors.NotFound:
-                self.container_mapping[model] = ContainerInfo(None)
+            self.container_mapping[model] = ContainerInfo(None)
 
     async def run_model_container(self, model: str, command=None, **kwargs):
         container = self.client.containers.run(
@@ -127,6 +123,7 @@ class Container:
             )
 
             info.container = container
+            info.status = container.status
 
             if container.id is None:
                 raise Error(
