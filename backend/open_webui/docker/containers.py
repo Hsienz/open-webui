@@ -18,19 +18,27 @@ import re
 log = logging.getLogger(__name__)
 
 
+class ContainerInfo:
+    def __init__(self, container: Optional[DockerContainer]):
+        self.status = container.status if container else "not exist"
+        self.container = container
+
+
 class Container:
     def __init__(self) -> None:
         self.client = docker.from_env()
-        self.model_mapping: dict[str, Optional[DockerContainer]] = {}
+        self.container_mapping: dict[str, ContainerInfo] = {}
+
         self.emit_thread = None
         self.log_thread = None
         self.stop_emit = False
 
         for model in Container.get_model_container_list():
+            container = self.client.containers.get(model)
             try:
-                self.model_mapping[model] = self.client.containers.get(model)
+                self.container_mapping[model] = ContainerInfo(container)
             except errors.NotFound:
-                self.model_mapping[model] = None
+                self.container_mapping[model] = ContainerInfo(None)
 
     async def run_model_container(self, model: str, command=None, **kwargs):
         container = self.client.containers.run(
@@ -47,7 +55,8 @@ class Container:
             **{k: v for k, v in kwargs.items() if v is not None},
         )
 
-        self.model_mapping[model] = container
+        info = ContainerInfo(container)
+        self.container_mapping[model] = info
 
         if self.log_thread is None or not self.log_thread.is_alive():
             event = threading.Event()
@@ -58,8 +67,9 @@ class Container:
             self.log_thread.start()
 
             await self._wait_log_finish(event=event)
+            info.status = "started"
             await self._emit_model_container_info(
-                name=model, status="started", id=container.id
+                name=model, status=info.status, id=container.id
             )
 
         return container
@@ -77,9 +87,15 @@ class Container:
         tool_call_parser: Optional[str] = None,
         **kwargs,
     ):
-        if container := self.model_mapping.get(model):
+        info = self.container_mapping.get(model)
+        if info is None:
+            log.warning("info for %s is not found", model)
+            return
+
+        container = info.container
+        if container is not None:
             container.stop()
-            self.model_mapping[model] = None
+            self.container_mapping[model] = ContainerInfo(None)
         else:
             command = []
             command.append("--model")
@@ -110,6 +126,8 @@ class Container:
                 **kwargs,
             )
 
+            info.container = container
+
             if container.id is None:
                 raise Error(
                     "Model Container do not create successfully for {}".format(model)
@@ -132,14 +150,15 @@ class Container:
         asyncio.run(self.emit_container_events())
 
     def follow_logs_until_match(self, name, re_str: str, evnet: threading.Event):
-        if container := self.model_mapping.get(name):
-            if container is None:
-                log.warning("container for %s not found", name)
+        info = self.container_mapping.get(name)
+        if info is None or info.container is None:
+            log.warning("container %s not found", name)
+            return
 
-            for line in container.logs(stream=True, follow=True):
-                line = line.decode().strip()
-                if re.search(re_str, line):
-                    evnet.set()
+        for line in info.container.logs(stream=True, follow=True):
+            line = line.decode().strip()
+            if re.search(re_str, line):
+                evnet.set()
 
     async def _emit_model_container_info(self, name, status, id):
         data = {
@@ -168,7 +187,7 @@ class Container:
         except errors.NotFound:
             return {"status": "not exist"}
 
-        self.model_mapping[model] = container
+        self.container_mapping[model].container = container
         return {"status": container.status}
 
     @classmethod
@@ -178,7 +197,7 @@ class Container:
     @classmethod
     def get_model_container_list(cls, use_cache: bool = False):
         if use_cache:
-            return sorted(container.model_mapping.keys())
+            return sorted(container.container_mapping.keys())
         else:
             path = "/root/.cache/huggingface/hub"
             dirs = []
