@@ -179,16 +179,17 @@ class Container:
             name = attributes.get("name")
             id = event.get("id")
             status = event.get("status")
-            await self._emit_model_container_info(name, status, id)
+            info = self.container_mapping.get(name)
+            if info:
+                info.status = status
+                await self._emit_model_container_info(name, info.status, id)
 
     def get_model_container_status(self, model: str):
-        try:
-            container = self.client.containers.get(model)
-        except errors.NotFound:
-            return {"status": "not exist"}
-
-        self.container_mapping[model].container = container
-        return {"status": container.status}
+        info = self.container_mapping.get(model)
+        if not info:
+            log.warning("container %s not found", model)
+            return
+        return {"status": info.status}
 
     @classmethod
     def parse_model_container_name_to_model(cls, name: str) -> str:
