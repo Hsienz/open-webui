@@ -132,19 +132,14 @@ class Container:
                 },
             )
 
-    def get_model_container_status(self, model: str, use_cache: bool = False):
-        if use_cache:
-            if model in self.model_mapping:
-                container = self.model_mapping.get(model)
-                return {"status": "close" if container is None else container.status}
-        else:
-            try:
-                container = self.client.containers.get(model)
-            except errors.NotFound:
-                return {"status": "not exist"}
+    def get_model_container_status(self, model: str):
+        try:
+            container = self.client.containers.get(model)
+        except errors.NotFound:
+            return {"status": "not exist"}
 
-            self.model_mapping[model] = container
-            return {"status": container.status}
+        self.model_mapping[model] = container
+        return {"status": container.status}
 
     @classmethod
     def parse_model_container_name_to_model(cls, name: str) -> str:

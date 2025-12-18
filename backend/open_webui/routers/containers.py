@@ -52,7 +52,7 @@ async def toggle_model_container(request: ModelForm, user=Depends(get_verified_u
 
 @router.get("/model/{model}")
 async def get_container_status(model: str, user=Depends(get_verified_user)):
-    return container.get_model_container_status(model, use_cache=True)
+    return container.get_model_container_status(model)
 
 
 @router.put("/emit/start")

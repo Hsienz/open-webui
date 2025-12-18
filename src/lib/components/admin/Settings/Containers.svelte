@@ -29,9 +29,8 @@
 		const data = event?.data?.data ?? null;
 
 		if (type === 'container:model') {
-			const model = data?.model;
-			const index = modelContainerMapping.get(model)!;
-			const container = modelContainers.at(index)!;
+			const model = data?.name;
+			const container = modelContainers.at(model)!;
 			container.status = data?.status;
 			if (data?.status == 'start') {
 				container.is_active = true;
