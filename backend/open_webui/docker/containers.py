@@ -180,7 +180,7 @@ class Container:
             info = self.container_mapping.get(name)
             if info:
                 info.status = status
-                await self._emit_model_container_info(name, info.status, id)
+            await self._emit_model_container_info(name, status, id)
 
     def get_model_container_status(self, model: str):
         info = self.container_mapping.get(model)
