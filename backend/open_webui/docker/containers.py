@@ -12,29 +12,50 @@ from fastapi import HTTPException
 from open_webui.socket.main import sio
 from redis import client
 from starlette.datastructures import CommaSeparatedStrings
+from enum import StrEnum
 import re
 
 
 log = logging.getLogger(__name__)
 
 
+class ContainerStatus(StrEnum):
+    Close = "closed"
+    Created = "created"
+    Started = "started"
+    Destroyed = "destroyed"
+
+
 class ContainerInfo:
     def __init__(self, container: Optional[DockerContainer]):
-        self.status = container.status if container else "closed"
+        self.status: ContainerStatus = ContainerStatus.Close
+        if container is not None:
+            self.set_status(container.status)
         self.container = container
+
+    def set_status(self, status: str | ContainerStatus):
+        if isinstance(status, str):
+            try:
+                status = ContainerStatus(status)
+            except Exception as e:
+                pass
+
+        assert isinstance(status, ContainerStatus)
+        if ord(status) > ord(self.status):
+            self.status = status
 
 
 class Container:
     def __init__(self) -> None:
         self.client = docker.from_env()
-        self.container_mapping: dict[str, ContainerInfo] = {}
+        self.info_mapping: dict[str, ContainerInfo] = {}
 
         self.emit_thread = None
         self.log_thread = None
         self.stop_emit = False
 
         for model in Container.get_model_container_list():
-            self.container_mapping[model] = ContainerInfo(None)
+            self.info_mapping[model] = ContainerInfo(None)
 
     async def run_model_container(self, model: str, command=None, **kwargs):
         container = self.client.containers.run(
@@ -52,7 +73,7 @@ class Container:
         )
 
         info = ContainerInfo(container)
-        self.container_mapping[model] = info
+        self.info_mapping[model] = info
 
         if self.log_thread is None or not self.log_thread.is_alive():
             event = threading.Event()
@@ -63,7 +84,7 @@ class Container:
             self.log_thread.start()
 
             await self._wait_log_finish(event=event)
-            info.status = "started"
+            info.set_status(ContainerStatus.Started)
             await self._emit_model_container_info(
                 name=model, status=info.status, id=container.id
             )
@@ -84,7 +105,7 @@ class Container:
         tool_call_parser: Optional[str] = None,
         **kwargs,
     ):
-        info = self.container_mapping.get(name)
+        info = self.info_mapping.get(name)
         if info is None:
             log.warning("info for %s is not found", name)
             return
@@ -92,7 +113,7 @@ class Container:
         container = info.container
         if container is not None:
             container.stop()
-            self.container_mapping[name] = ContainerInfo(None)
+            self.info_mapping[name] = ContainerInfo(None)
         else:
             command = []
             command.append("--model")
@@ -124,7 +145,7 @@ class Container:
             )
 
             info.container = container
-            info.status = container.status
+            info.set_status(container.status)
 
             if container.id is None:
                 raise Error(
@@ -148,7 +169,7 @@ class Container:
         asyncio.run(self.emit_container_events())
 
     def follow_logs_until_match(self, name, re_str: str, evnet: threading.Event):
-        info = self.container_mapping.get(name)
+        info = self.info_mapping.get(name)
         if info is None or info.container is None:
             log.warning("container %s not found", name)
             return
@@ -177,13 +198,13 @@ class Container:
             name = attributes.get("name")
             id = event.get("id")
             status = event.get("status")
-            info = self.container_mapping.get(name)
+            info = self.info_mapping.get(name)
             if info:
                 info.status = status
             await self._emit_model_container_info(name, status, id)
 
     def get_model_container_status(self, model: str):
-        info = self.container_mapping.get(model)
+        info = self.info_mapping.get(model)
         if not info:
             log.warning("container %s not found", model)
             return
@@ -196,7 +217,7 @@ class Container:
     @classmethod
     def get_model_container_list(cls, use_cache: bool = False):
         if use_cache:
-            return sorted(container.container_mapping.keys())
+            return sorted(container.info_mapping.keys())
         else:
             path = "/root/.cache/huggingface/hub"
             dirs = []

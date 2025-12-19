@@ -25,14 +25,14 @@
 
 	const containerHandler = async (event, cb) => {
 		console.log(JSON.stringify(event));
-		const type = event?.data?.type ?? null;
-		const data = event?.data?.data ?? null;
+		const type = event?.type ?? null;
+		const data = event?.data ?? null;
 
 		if (type === 'container:model') {
 			const model = data?.name;
 			const container = modelContainers.at(model)!;
 			container.status = data?.status;
-			if (data?.status == 'start') {
+			if (data?.status == 'started' || data?.status == 'created') {
 				container.is_active = true;
 			}
 			modelContainers = [...modelContainers];
