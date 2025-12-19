@@ -200,7 +200,7 @@ class Container:
             status = event.get("status")
             info = self.info_mapping.get(name)
             if info:
-                info.status = status
+                info.set_status(status)
             await self._emit_model_container_info(name, status, id)
 
     def get_model_container_status(self, model: str):
