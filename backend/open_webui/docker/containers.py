@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 
 class ContainerStatus(IntEnum):
     Closed = auto()
+    Start = auto()
     Created = auto()
     Destroyed = auto()
 
