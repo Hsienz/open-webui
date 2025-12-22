@@ -109,26 +109,25 @@ class Container:
     async def toggle_model_container(
         self,
         model: str,
-        name: str,
         port: int,
         gpu_memory_utilization: Optional[float] = None,
         tensor_parallel_size: Optional[int] = None,
         tool_call_parser: Optional[str] = None,
         **kwargs,
     ):
-        info = self.info_mapping.get(name)
+        info = self.info_mapping.get(model)
         if info is None:
-            log.warning("info for %s is not found", name)
+            log.warning("info for %s is not found", model)
             return
 
         container = info.container
         if container is not None:
             container.stop()
-            self.info_mapping[name] = ContainerInfo(None)
+            self.info_mapping[model] = ContainerInfo(None)
         else:
             command = []
             command.append("--model")
-            command.append(model)
+            command.append(Container.parse_model_container_name_to_model(model))
 
             command.append("--port")
             command.append(port)

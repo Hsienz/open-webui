@@ -30,7 +30,7 @@ async def get_model_container(user=Depends(get_verified_user)):
 async def toggle_model_container(request: ModelForm, user=Depends(get_verified_user)):
     port = 8000
     await container.toggle_model_container(
-        model=Container.parse_model_container_name_to_model(request.model),
+        model=request.model,
         name=request.model,
         ports={"{}/tcp".format(port): request.port},
         port=port,
