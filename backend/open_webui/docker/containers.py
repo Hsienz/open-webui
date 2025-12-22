@@ -43,15 +43,18 @@ class ContainerInfo:
             self.set_status_with_priority(container.status)
         self.container = container
 
-    def set_status_with_priority(self, status: str | ContainerStatus):
+    def set_status_with_priority(self, status: str | ContainerStatus) -> bool:
         if isinstance(status, str):
             temp = ContainerStatus.from_str(status)
             if temp is None:
-                return
+                return False
             status = temp
 
         if status.value > self.status.value:
             self.status = status
+            return True
+
+        return False
 
 
 class Container:
@@ -177,7 +180,7 @@ class Container:
     def _run_async_emit(self):
         asyncio.run(self.emit_container_events())
 
-    def follow_logs_until_match(self, name, re_str: str, evnet: threading.Event):
+    def follow_logs_until_match(self, name, re_str: str, event: threading.Event):
         info = self.info_mapping.get(name)
         if info is None or info.container is None:
             log.warning("container %s not found", name)
@@ -186,7 +189,7 @@ class Container:
         for line in info.container.logs(stream=True, follow=True):
             line = line.decode().strip()
             if re.search(re_str, line):
-                evnet.set()
+                event.set()
 
     async def _emit_model_container_info(self, name, status, id):
         data = {
@@ -209,15 +212,17 @@ class Container:
             status = event.get("status")
             info = self.info_mapping.get(name)
             if info:
-                info.set_status_with_priority(status)
-                await self._emit_model_container_info(name, info.status, id)
+                if info.set_status_with_priority(status):
+                    await self._emit_model_container_info(
+                        name, info.status.to_str(), id
+                    )
 
     def get_model_container_status(self, model: str):
         info = self.info_mapping.get(model)
         if not info:
             log.warning("container %s not found", model)
             return
-        return {"status": info.status.name.lower()}
+        return {"status": info.status.to_str()}
 
     @classmethod
     def parse_model_container_name_to_model(cls, name: str) -> str:
