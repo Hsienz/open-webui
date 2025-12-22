@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 class ContainerStatus(IntEnum):
     Closed = auto()
     Created = auto()
-    Started = auto()
     Destroyed = auto()
 
     @classmethod
@@ -87,19 +86,19 @@ class Container:
         info = ContainerInfo(container)
         self.info_mapping[model] = info
 
-        if self.log_thread is None or not self.log_thread.is_alive():
-            event = threading.Event()
-            self.log_thread = threading.Thread(
-                target=self.follow_logs_until_match,
-                args=[model, r"Application startup complete\.$", event],
-            )
-            self.log_thread.start()
-
-            await self._wait_log_finish(event=event)
-            info.set_status_with_priority(ContainerStatus.Started)
-            await self._emit_model_container_info(
-                name=model, status=info.status, id=container.id
-            )
+        # if self.log_thread is None or not self.log_thread.is_alive():
+        #     event = threading.Event()
+        #     self.log_thread = threading.Thread(
+        #         target=self.follow_logs_until_match,
+        #         args=[model, r"Application startup complete\.$", event],
+        #     )
+        #     self.log_thread.start()
+        #
+        #     await self._wait_log_finish(event=event)
+        #     info.set_status_with_priority(ContainerStatus.Started)
+        #     await self._emit_model_container_info(
+        #         name=model, status=info.status, id=container.id
+        #     )
 
         return container
 

@@ -32,7 +32,7 @@
 			const model = data?.name;
 			const container = modelContainers.at(model)!;
 			container.status = data?.status;
-			if (data?.status == 'started' || data?.status == 'created') {
+			if (data?.status == 'created') {
 				container.is_active = true;
 			}
 			modelContainers = [...modelContainers];
@@ -86,7 +86,7 @@
 					{
 						model: model,
 						status: containerInfo.status,
-						is_active: containerInfo.status === 'started',
+						is_active: containerInfo.status === 'created',
 						port: undefined,
 						device_ids: undefined,
 						gpu_memory_utilization: 0.9,
