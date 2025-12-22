@@ -24,13 +24,13 @@
 	const i18n = getContext('i18n');
 
 	const containerHandler = async (event, cb) => {
-		console.log(JSON.stringify(event));
+		console.log('container handler', JSON.stringify(event));
 		const type = event?.type ?? null;
 		const data = event?.data ?? null;
 
 		if (type === 'container:model') {
 			const model = data?.name;
-			const container = modelContainers.at(model)!;
+			const container = modelContainers.at(modelContainerMapping.get(model)!)!;
 			container.status = data?.status;
 			if (data?.status == 'created') {
 				container.is_active = true;
