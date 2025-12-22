@@ -20,27 +20,36 @@ log = logging.getLogger(__name__)
 
 
 class ContainerStatus(IntEnum):
-    Close = auto()
+    Closed = auto()
     Created = auto()
     Started = auto()
     Destroyed = auto()
 
+    @classmethod
+    def from_str(cls, s: str):
+        for x in ContainerStatus:
+            if x.to_str() == s:
+                return x
+        return None
+
+    def to_str(self):
+        return self.name.lower()
+
 
 class ContainerInfo:
     def __init__(self, container: Optional[DockerContainer]):
-        self.status: ContainerStatus = ContainerStatus.Close
+        self.status: ContainerStatus = ContainerStatus.Closed
         if container is not None:
-            self.set_status(container.status)
+            self.set_status_with_priority(container.status)
         self.container = container
 
-    def set_status(self, status: str | ContainerStatus):
+    def set_status_with_priority(self, status: str | ContainerStatus):
         if isinstance(status, str):
-            try:
-                status = ContainerStatus(status)
-            except Exception as e:
-                pass
+            temp = ContainerStatus.from_str(status)
+            if temp is None:
+                return
+            status = temp
 
-        assert isinstance(status, ContainerStatus)
         if status.value > self.status.value:
             self.status = status
 
@@ -84,7 +93,7 @@ class Container:
             self.log_thread.start()
 
             await self._wait_log_finish(event=event)
-            info.set_status(ContainerStatus.Started)
+            info.set_status_with_priority(ContainerStatus.Started)
             await self._emit_model_container_info(
                 name=model, status=info.status, id=container.id
             )
@@ -145,7 +154,7 @@ class Container:
             )
 
             info.container = container
-            info.set_status(container.status)
+            info.set_status_with_priority(container.status)
 
             if container.id is None:
                 raise Error(
@@ -200,7 +209,7 @@ class Container:
             status = event.get("status")
             info = self.info_mapping.get(name)
             if info:
-                info.set_status(status)
+                info.set_status_with_priority(status)
                 await self._emit_model_container_info(name, info.status, id)
 
     def get_model_container_status(self, model: str):
