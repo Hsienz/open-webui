@@ -12,18 +12,18 @@ from fastapi import HTTPException
 from open_webui.socket.main import sio
 from redis import client
 from starlette.datastructures import CommaSeparatedStrings
-from enum import StrEnum
+from enum import IntEnum, StrEnum, auto
 import re
 
 
 log = logging.getLogger(__name__)
 
 
-class ContainerStatus(StrEnum):
-    Close = "closed"
-    Created = "created"
-    Started = "started"
-    Destroyed = "destroyed"
+class ContainerStatus(IntEnum):
+    Close = auto()
+    Created = auto()
+    Started = auto()
+    Destroyed = auto()
 
 
 class ContainerInfo:
@@ -41,7 +41,7 @@ class ContainerInfo:
                 pass
 
         assert isinstance(status, ContainerStatus)
-        if ord(status) > ord(self.status):
+        if status.value > self.status.value:
             self.status = status
 
 
@@ -208,7 +208,7 @@ class Container:
         if not info:
             log.warning("container %s not found", model)
             return
-        return {"status": info.status}
+        return {"status": info.status.name.lower()}
 
     @classmethod
     def parse_model_container_name_to_model(cls, name: str) -> str:
