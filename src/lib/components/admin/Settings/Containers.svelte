@@ -12,6 +12,7 @@
 		model: string;
 		status: string;
 		is_active: boolean;
+		is_loading: boolean;
 		port: number | undefined;
 		device_ids: string | undefined;
 		gpu_memory_utilization: number;
@@ -87,10 +88,11 @@
 						model: model,
 						status: containerInfo.status,
 						is_active: containerInfo.status === 'start' || containerInfo.status === 'created',
-						port: undefined,
-						device_ids: undefined,
-						gpu_memory_utilization: 0.9,
-						tensor_parallel_size: 1
+						is_loading: false,
+						port: containerInfo.port,
+						device_ids: containerInfo.device_ids,
+						gpu_memory_utilization: containerInfo.gpu_memory_utilization,
+						tensor_parallel_size: containerInfo.tensor_parallel_size
 					}
 				];
 
@@ -119,9 +121,10 @@
 	});
 
 	const toggleModelContainerHandler = async (container: ModelContainer) => {
+		container.is_loading = true;
+		container.is_active = false;
 		if (container.port == undefined) {
 			toast.error('Port is required');
-			container.is_active = false;
 			modelContainers = [...modelContainers];
 			return;
 		}
@@ -139,10 +142,19 @@
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${token}`
 			}
-		}).catch(async (e) => {
-			toast.error(e);
-			container.is_active = false;
-		});
+		})
+			.then(async (res) => {
+				if (res.ok) {
+					let data = await res.json();
+					if (data['status'] == 'created' || data['status'] == 'start') container.is_active = true;
+				}
+			})
+			.catch(async (e) => {
+				toast.error(e);
+			})
+			.finally(() => {
+				container.is_loading = false;
+			});
 	};
 </script>
 
@@ -175,7 +187,11 @@
 								{container.model}
 							</h4>
 							<span class="text-xs mt-auto">
-								{container.status}
+								{#if container.is_loading}
+									<Spinner />
+								{:else}
+									{container.status}
+								{/if}
 							</span>
 						</div>
 						<span>test text</span>

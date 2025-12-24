@@ -8,6 +8,7 @@ import docker
 from docker import errors
 from docker.models.containers import Container as DockerContainer
 import os
+from docker.types import DeviceRequest
 from fastapi import HTTPException
 from open_webui.socket.main import sio
 from redis import client
@@ -24,6 +25,7 @@ class ContainerStatus(IntEnum):
     Start = auto()
     Created = auto()
     Destroyed = auto()
+    Die = auto()
 
     @classmethod
     def from_str(cls, s: str):
@@ -42,6 +44,10 @@ class ContainerInfo:
         if container is not None:
             self.set_status_with_priority(container.status)
         self.container = container
+        self.device_ids: str = ""
+        self.port: int | None = None
+        self.tensor_parallel_size: int | None = None
+        self.gpu_memory_utilization: float | None = None
 
     def set_status_with_priority(self, status: str | ContainerStatus) -> bool:
         if isinstance(status, str):
@@ -86,20 +92,6 @@ class Container:
 
         info = ContainerInfo(container)
         self.info_mapping[model] = info
-
-        # if self.log_thread is None or not self.log_thread.is_alive():
-        #     event = threading.Event()
-        #     self.log_thread = threading.Thread(
-        #         target=self.follow_logs_until_match,
-        #         args=[model, r"Application startup complete\.$", event],
-        #     )
-        #     self.log_thread.start()
-        #
-        #     await self._wait_log_finish(event=event)
-        #     info.set_status_with_priority(ContainerStatus.Started)
-        #     await self._emit_model_container_info(
-        #         name=model, status=info.status, id=container.id
-        #     )
 
         return container
 
@@ -157,6 +149,13 @@ class Container:
 
             info.container = container
             info.set_status_with_priority(container.status)
+            info.port = port
+            info.tensor_parallel_size = tensor_parallel_size
+            info.gpu_memory_utilization = gpu_memory_utilization
+            device_requests = kwargs.get("device_requests")
+            if device_requests and isinstance(device_requests, list):
+                request: DeviceRequest = device_requests[0]
+                info.device_ids = request.device_ids
 
             if container.id is None:
                 raise Error(
@@ -221,7 +220,13 @@ class Container:
         if not info:
             log.warning("container %s not found", model)
             return
-        return {"status": info.status.to_str()}
+        return {
+            "status": info.status.to_str(),
+            "device_ids": info.device_ids,
+            "port": info.port,
+            "tensor_parallel_size": info.tensor_parallel_size,
+            "gpu_memory_utilization": info.gpu_memory_utilization,
+        }
 
     @classmethod
     def parse_model_container_name_to_model(cls, name: str) -> str:
