@@ -51,11 +51,8 @@ class ContainerInfo:
                 return False
             status = temp
 
-        if status.value > self.status.value:
-            self.status = status
-            return True
-
-        return False
+        self.status = status
+        return True
 
 
 class Container:

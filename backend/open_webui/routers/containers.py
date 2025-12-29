@@ -38,7 +38,7 @@ async def toggle_model_container(
         model=request.model,
         name=request.model,
         ports={"{}/tcp".format(port): request.port},
-        port=port,
+        port=request.port,
         tensor_parallel_size=request.tensor_parallel_size,
         tool_call_parser=request.tool_call_parser,
         gpu_memory_utilization=request.gpu_memory_utilization,
