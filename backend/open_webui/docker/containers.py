@@ -1,19 +1,14 @@
 import asyncio
-from base64 import decode
 from copy import Error
 import logging
 import threading
 from typing import Optional
 import docker
-from docker import errors
 from docker.models.containers import Container as DockerContainer
 import os
 from docker.types import DeviceRequest
-from fastapi import HTTPException
 from open_webui.socket.main import sio
-from redis import client
-from starlette.datastructures import CommaSeparatedStrings
-from enum import IntEnum, StrEnum, auto
+from enum import IntEnum, auto
 import re
 
 
@@ -75,7 +70,7 @@ class Container:
         for model in Container.get_model_container_list():
             self.info_mapping[model] = ContainerInfo(None)
 
-    async def run_model_container(self, model: str, command=None, **kwargs):
+    def run_model_container(self, model: str, command=None, **kwargs):
         container = self.client.containers.run(
             image="vllm/vllm-openai:latest",
             command=command,
@@ -99,7 +94,7 @@ class Container:
         loop = asyncio.get_running_loop()
         await loop.run_in_executor(None, event.wait)
 
-    async def toggle_model_container(
+    def toggle_model_container(
         self,
         model: str,
         port: int,
@@ -141,7 +136,7 @@ class Container:
                 command.append(tool_call_parser)
 
             command = [str(c) for c in command]
-            container = await self.run_model_container(
+            container = self.run_model_container(
                 model=model,
                 command=command,
                 **kwargs,

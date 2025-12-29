@@ -1,7 +1,7 @@
 from functools import cache
 from fastapi.routing import APIRouter
 from open_webui.utils.auth import get_verified_user
-from fastapi import Depends
+from fastapi import BackgroundTasks, Depends
 from open_webui.docker.containers import container
 from pydantic import BaseModel
 from typing import Optional
@@ -27,9 +27,14 @@ async def get_model_container(user=Depends(get_verified_user)):
 
 
 @router.post("/model/toggle")
-async def toggle_model_container(request: ModelForm, user=Depends(get_verified_user)):
+async def toggle_model_container(
+    request: ModelForm,
+    background_tasks: BackgroundTasks,
+    user=Depends(get_verified_user),
+):
     port = 8000
-    await container.toggle_model_container(
+    background_tasks.add_task(
+        container.toggle_model_container,
         model=request.model,
         name=request.model,
         ports={"{}/tcp".format(port): request.port},
@@ -48,6 +53,8 @@ async def toggle_model_container(request: ModelForm, user=Depends(get_verified_u
             )
         ],
     )
+
+    return {}
 
 
 @router.get("/model/{model}")

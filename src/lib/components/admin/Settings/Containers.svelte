@@ -35,6 +35,10 @@
 			container.status = data?.status;
 			if (data?.status == 'start' || data?.status == 'created') {
 				container.is_active = true;
+				container.is_loading = false;
+			} else if (data?.state == 'die' || data?.state == 'destroyed') {
+				container.is_active = false;
+				container.is_loading = false;
 			}
 			modelContainers = [...modelContainers];
 		}
@@ -151,9 +155,6 @@
 			})
 			.catch(async (e) => {
 				toast.error(e);
-			})
-			.finally(() => {
-				container.is_loading = false;
 			});
 	};
 </script>
@@ -219,7 +220,7 @@
 						<label for={`${container.model}-device-ids`}>device_ids</label>
 						<input
 							id={`${container.model}-device-ids`}
-							name="deuvce-ids"
+							name="device-ids"
 							placeholder="0,1"
 							class="w-full"
 							disabled={container.is_active}
