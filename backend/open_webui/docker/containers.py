@@ -81,10 +81,6 @@ class Container:
             },
             **{k: v for k, v in kwargs.items() if v is not None},
         )
-
-        info = ContainerInfo(container)
-        self.info_mapping[model] = info
-
         return container
 
     async def _wait_log_finish(self, event: threading.Event):
@@ -149,6 +145,7 @@ class Container:
                 request: DeviceRequest = device_requests[0]
                 info.device_ids = request.device_ids
 
+            self.info_mapping[model] = info
             if container.id is None:
                 raise Error(
                     "Model Container do not create successfully for {}".format(model)
