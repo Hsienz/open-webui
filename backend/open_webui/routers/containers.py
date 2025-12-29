@@ -21,6 +21,10 @@ class ModelForm(BaseModel):
     gpu_memory_utilization: Optional[float] = None
 
 
+class StopModelForm(BaseModel):
+    model: str
+
+
 @router.get("/models")
 async def get_model_container(user=Depends(get_verified_user)):
     return container.get_model_container_list(use_cache=True)
@@ -59,12 +63,13 @@ async def run_model_container(
 
 @router.post("/model/stop")
 async def stop_model_container(
-    request: ModelForm,
+    request: StopModelForm,
     background_tasks: BackgroundTasks,
-    user = Depends(get_verified_user)
-): 
+    user=Depends(get_verified_user),
+):
+    background_tasks.add_task(container.stop_model_container, model=request.model)
 
-
+    return {}
 
 
 @router.get("/model/{model}")
