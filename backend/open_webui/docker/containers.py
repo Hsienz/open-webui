@@ -87,7 +87,18 @@ class Container:
         loop = asyncio.get_running_loop()
         await loop.run_in_executor(None, event.wait)
 
-    def toggle_model_container(
+    def stop_model_container(self, model: str):
+        info = self.info_mapping.get(model)
+        if info is None:
+            log.warning("info for %s is not found", model)
+            return
+
+        container = info.container
+        if container is not None:
+            container.stop()
+            self.info_mapping[model] = ContainerInfo(None)
+
+    def run_model_container_wrapper(
         self,
         model: str,
         port: int,
@@ -100,56 +111,51 @@ class Container:
         if info is None:
             log.warning("info for %s is not found", model)
             return
-
         container = info.container
-        if container is not None:
-            container.stop()
-            self.info_mapping[model] = ContainerInfo(None)
-        else:
-            command = []
-            command.append("--model")
-            command.append(Container.parse_model_container_name_to_model(model))
+        command = []
+        command.append("--model")
+        command.append(Container.parse_model_container_name_to_model(model))
 
-            command.append("--port")
-            command.append(port)
+        command.append("--port")
+        command.append(port)
 
-            command.append("--enable-auto-tool")
+        command.append("--enable-auto-tool")
+        command.append("--tool-call-parser")
+        command.append("hermes")
+        if gpu_memory_utilization is not None:
+            command.append("--gpu_memory_utilization")
+            command.append(gpu_memory_utilization)
+
+        if tensor_parallel_size is not None:
+            command.append("--tensor_parallel_size")
+            command.append(tensor_parallel_size)
+
+        if tool_call_parser is not None:
             command.append("--tool-call-parser")
-            command.append("hermes")
-            if gpu_memory_utilization is not None:
-                command.append("--gpu_memory_utilization")
-                command.append(gpu_memory_utilization)
+            command.append(tool_call_parser)
 
-            if tensor_parallel_size is not None:
-                command.append("--tensor_parallel_size")
-                command.append(tensor_parallel_size)
+        command = [str(c) for c in command]
+        container = self.run_model_container(
+            model=model,
+            command=command,
+            **kwargs,
+        )
 
-            if tool_call_parser is not None:
-                command.append("--tool-call-parser")
-                command.append(tool_call_parser)
+        info.container = container
+        info.set_status_with_priority(container.status)
+        info.port = port
+        info.tensor_parallel_size = tensor_parallel_size
+        info.gpu_memory_utilization = gpu_memory_utilization
+        device_requests = kwargs.get("device_requests")
+        if device_requests and isinstance(device_requests, list):
+            request: DeviceRequest = device_requests[0]
+            info.device_ids = request.device_ids
 
-            command = [str(c) for c in command]
-            container = self.run_model_container(
-                model=model,
-                command=command,
-                **kwargs,
+        self.info_mapping[model] = info
+        if container.id is None:
+            raise Error(
+                "Model Container do not create successfully for {}".format(model)
             )
-
-            info.container = container
-            info.set_status_with_priority(container.status)
-            info.port = port
-            info.tensor_parallel_size = tensor_parallel_size
-            info.gpu_memory_utilization = gpu_memory_utilization
-            device_requests = kwargs.get("device_requests")
-            if device_requests and isinstance(device_requests, list):
-                request: DeviceRequest = device_requests[0]
-                info.device_ids = request.device_ids
-
-            self.info_mapping[model] = info
-            if container.id is None:
-                raise Error(
-                    "Model Container do not create successfully for {}".format(model)
-                )
 
     def start_emit_thread(self):
         if self.emit_thread is None or not self.emit_thread.is_alive():

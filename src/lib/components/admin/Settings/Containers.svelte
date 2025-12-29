@@ -126,36 +126,47 @@
 
 	const toggleModelContainerHandler = async (container: ModelContainer) => {
 		container.is_loading = true;
-		container.is_active = false;
-		if (container.port == undefined) {
-			toast.error('Port is required');
-			modelContainers = [...modelContainers];
-			return;
-		}
-		let data = {
-			port: container.port,
-			gpus: container.device_ids ? `device=${container.device_ids?.trim()}` : undefined,
-			model: container.model,
-			gpu_memory_utilization: container.gpu_memory_utilization,
-			tensor_parallel_size: container.tensor_parallel_size
-		};
-		const res = await fetch(`${WEBUI_API_BASE_URL}/containers/model/toggle`, {
-			method: 'POST',
-			body: JSON.stringify(data),
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${token}`
+		if (container.is_active) {
+			await fetch(`${WEBUI_API_BASE_URL}/containers/model/stop`, {
+				method: 'POST',
+				body: JSON.stringify({ model: container.model }),
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`
+				}
+			});
+		} else {
+			if (container.port == undefined) {
+				toast.error('Port is required');
+				modelContainers = [...modelContainers];
+				return;
 			}
-		})
-			.then(async (res) => {
-				if (res.ok) {
-					let data = await res.json();
-					if (data['status'] == 'created' || data['status'] == 'start') container.is_active = true;
+			let data = {
+				port: container.port,
+				gpus: container.device_ids ? `device=${container.device_ids?.trim()}` : undefined,
+				model: container.model,
+				gpu_memory_utilization: container.gpu_memory_utilization,
+				tensor_parallel_size: container.tensor_parallel_size
+			};
+			await fetch(`${WEBUI_API_BASE_URL}/containers/model/run`, {
+				method: 'POST',
+				body: JSON.stringify(data),
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`
 				}
 			})
-			.catch(async (e) => {
-				toast.error(e);
-			});
+				.then(async (res) => {
+					if (res.ok) {
+						let data = await res.json();
+						if (data['status'] == 'created' || data['status'] == 'start')
+							container.is_active = true;
+					}
+				})
+				.catch(async (e) => {
+					toast.error(e);
+				});
+		}
 	};
 </script>
 

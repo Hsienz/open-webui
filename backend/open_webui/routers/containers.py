@@ -26,15 +26,15 @@ async def get_model_container(user=Depends(get_verified_user)):
     return container.get_model_container_list(use_cache=True)
 
 
-@router.post("/model/toggle")
-async def toggle_model_container(
+@router.post("/model/run")
+async def run_model_container(
     request: ModelForm,
     background_tasks: BackgroundTasks,
     user=Depends(get_verified_user),
 ):
     port = 8000
     background_tasks.add_task(
-        container.toggle_model_container,
+        container.run_model_container,
         model=request.model,
         name=request.model,
         ports={"{}/tcp".format(port): request.port},
@@ -55,6 +55,16 @@ async def toggle_model_container(
     )
 
     return {}
+
+
+@router.post("/model/stop")
+async def stop_model_container(
+    request: ModelForm,
+    background_tasks: BackgroundTasks,
+    user = Depends(get_verified_user)
+): 
+
+
 
 
 @router.get("/model/{model}")
