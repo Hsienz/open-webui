@@ -36,7 +36,7 @@
 			if (data?.status == 'start' || data?.status == 'created') {
 				container.is_active = true;
 				container.is_loading = false;
-			} else if (data?.state == 'die' || data?.state == 'destroyed') {
+			} else if (data?.status == 'die' || data?.status == 'destroyed') {
 				container.is_active = false;
 				container.is_loading = false;
 			}
@@ -155,17 +155,10 @@
 					'Content-Type': 'application/json',
 					Authorization: `Bearer ${token}`
 				}
-			})
-				.then(async (res) => {
-					if (res.ok) {
-						let data = await res.json();
-						if (data['status'] == 'created' || data['status'] == 'start')
-							container.is_active = true;
-					}
-				})
-				.catch(async (e) => {
-					toast.error(e);
-				});
+			}).catch(async (e) => {
+				container.is_active = false;
+				toast.error(e);
+			});
 		}
 	};
 </script>

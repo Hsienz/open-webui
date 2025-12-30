@@ -38,7 +38,7 @@ async def run_model_container(
 ):
     port = 8000
     background_tasks.add_task(
-        container.run_model_container,
+        container.run_model_container_wrapper,
         model=request.model,
         name=request.model,
         ports={"{}/tcp".format(port): request.port},
