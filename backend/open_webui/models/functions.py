@@ -28,6 +28,7 @@ class Function(Base):
     valves = Column(JSONField)
     is_active = Column(Boolean)
     is_global = Column(Boolean)
+    is_force_enabled: bool = False
     updated_at = Column(BigInteger)
     created_at = Column(BigInteger)
 
@@ -49,6 +50,7 @@ class FunctionModel(BaseModel):
     meta: FunctionMeta
     is_active: bool = False
     is_global: bool = False
+    is_force_enabled: bool = False
     updated_at: int  # timestamp in epoch
     created_at: int  # timestamp in epoch
 
@@ -65,6 +67,7 @@ class FunctionWithValvesModel(BaseModel):
     valves: Optional[dict] = None
     is_active: bool = False
     is_global: bool = False
+    is_force_enabled: bool = False
     updated_at: int  # timestamp in epoch
     created_at: int  # timestamp in epoch
 
