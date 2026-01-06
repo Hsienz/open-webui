@@ -108,7 +108,9 @@ async def load_function_from_url(
             file_name.endswith(".py")
             and (not file_name.startswith(("main.py", "index.py", "__init__.py")))
         )
-        else url_parts[-2] if len(url_parts) > 1 else "function"
+        else url_parts[-2]
+        if len(url_parts) > 1
+        else "function"
     )
 
     try:
@@ -302,6 +304,32 @@ async def toggle_global_by_id(id: str, user=Depends(get_admin_user)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=ERROR_MESSAGES.NOT_FOUND,
+        )
+
+
+############################
+# toggleForceEnableById
+############################
+
+
+@router.post("/id/{id}/toggle/force_enabled", response_model=Optional[FunctionModel])
+async def toggle_force_enabled_by_id(id: str, user=Depends(get_admin_user)):
+    function = Functions.get_function_by_id(id)
+    if function:
+        function = Functions.update_function_by_id(
+            id, {"is_force_enabled": not function.is_force_enabled}
+        )
+
+        if function:
+            return function
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=ERROR_MESSAGES.DEFAULT("Error updating function"),
+            )
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=ERROR_MESSAGES.NOT_FOUND
         )
 
 

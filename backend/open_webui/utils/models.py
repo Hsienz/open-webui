@@ -139,6 +139,11 @@ async def get_all_models(request, refresh: bool = False, user: UserModel = None)
         function.id
         for function in Functions.get_functions_by_type("action", active_only=True)
     ]
+    force_enabled_action_ids = [
+        function.id
+        for function in Functions.get_functions_by_type("action", active_only=True)
+        if function.is_force_enabled
+    ]
 
     global_filter_ids = [
         function.id for function in Functions.get_global_filter_functions()
@@ -147,18 +152,26 @@ async def get_all_models(request, refresh: bool = False, user: UserModel = None)
         function.id
         for function in Functions.get_functions_by_type("filter", active_only=True)
     ]
+    force_enalbed_filter_ids = [
+        function.id
+        for function in Functions.get_functions_by_type("filter", active_only=True)
+        if function.is_force_enabled
+    ]
 
     custom_models = Models.get_all_models()
     for custom_model in custom_models:
         if custom_model.base_model_id is None:
             # Applied directly to a base model
             for model in models:
-                if custom_model.id == model["id"] or (
-                    model.get("owned_by") == "ollama"
-                    and custom_model.id
-                    == model["id"].split(":")[
-                        0
-                    ]  # Ollama may return model ids in different formats (e.g., 'llama3' vs. 'llama3:7b')
+                if (
+                    custom_model.id == model["id"]
+                    or (
+                        model.get("owned_by") == "ollama"
+                        and custom_model.id
+                        == model["id"].split(":")[
+                            0
+                        ]  # Ollama may return model ids in different formats (e.g., 'llama3' vs. 'llama3:7b')
+                    )
                 ):
                     if custom_model.is_active:
                         model["name"] = custom_model.name
@@ -296,11 +309,13 @@ async def get_all_models(request, refresh: bool = False, user: UserModel = None)
             action_id
             for action_id in list(set(model.pop("action_ids", []) + global_action_ids))
             if action_id in enabled_action_ids
+            and action_id not in force_enabled_action_ids
         ]
         filter_ids = [
             filter_id
             for filter_id in list(set(model.pop("filter_ids", []) + global_filter_ids))
             if filter_id in enabled_filter_ids
+            and filter_id not in force_enalbed_filter_ids
         ]
 
         model["actions"] = []

@@ -22,6 +22,7 @@
 	export let exportHandler: Function;
 	export let deleteHandler: Function;
 	export let toggleGlobalHandler: Function;
+	export let toggleForceEnableHandler: Function;
 
 	export let onClose: Function;
 
@@ -60,6 +61,20 @@
 
 					<div>
 						<Switch on:change={toggleGlobalHandler} bind:state={func.is_global} />
+					</div>
+				</div>
+
+				<div
+					class="flex gap-2 justify-between items-center px-3 py-1.5 text-sm font-medium cursor-pointerrounded-md"
+				>
+					<div class="flex gap-2 items-center">
+						<!-- <GlobeAlt /> -->
+
+						<div class="flex items-center">{$i18n.t('Force Enabled')}</div>
+					</div>
+
+					<div>
+						<Switch on:change={toggleForceEnableHandler} bind:state={func.is_global} />
 					</div>
 				</div>
 

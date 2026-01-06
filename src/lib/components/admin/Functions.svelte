@@ -200,6 +200,34 @@
 		}
 	};
 
+	const toggleForceEnableHandler = async (func) => {
+		const res = await toggleForceEnableHandler(localStorage.token, func.id).catch((error) => {
+			toast.error(`${error}`);
+		});
+
+		if (res) {
+			if (func.is_force_enabled) {
+				func.type === 'filter'
+					? toast.success($i18n.t('Filter is now force enabled'))
+					: toast.success($i18n.t('Function is now force enabled'));
+			} else {
+				func.type === 'filter'
+					? toast.success($i18n.t('Filter is now not force disabled'))
+					: toast.success($i18n.t('Function is now not force disabled'));
+			}
+		}
+
+		_functions.set(await getFunctions(localStorage.token));
+		models.set(
+			await getModels(
+				localStorage.token,
+				$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null),
+				false,
+				true
+			)
+		);
+	};
+
 	onMount(async () => {
 		viewOption = localStorage?.workspaceViewOption || '';
 		functions = await getFunctionList(localStorage.token).catch((error) => {
@@ -537,6 +565,11 @@
 										toggleGlobalHandler={() => {
 											if (['filter', 'action'].includes(func.type)) {
 												toggleGlobalHandler(func);
+											}
+										}}
+										toggleForceEnableHandler={() => {
+											if (['filter', 'action'].includes(func.type)) {
+												toggleForceEnableHandler(func);
 											}
 										}}
 										onClose={() => {}}
