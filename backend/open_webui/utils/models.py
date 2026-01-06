@@ -308,14 +308,12 @@ async def get_all_models(request, refresh: bool = False, user: UserModel = None)
         action_ids = [
             action_id
             for action_id in list(set(model.pop("action_ids", []) + global_action_ids))
-            if action_id in enabled_action_ids
-            and action_id not in force_enabled_action_ids
+            if action_id in enabled_action_ids or action_id in force_enabled_action_ids
         ]
         filter_ids = [
             filter_id
             for filter_id in list(set(model.pop("filter_ids", []) + global_filter_ids))
-            if filter_id in enabled_filter_ids
-            and filter_id not in force_enalbed_filter_ids
+            if filter_id in enabled_filter_ids or filter_id in force_enalbed_filter_ids
         ]
 
         model["actions"] = []
