@@ -140,9 +140,7 @@ async def get_all_models(request, refresh: bool = False, user: UserModel = None)
         for function in Functions.get_functions_by_type("action", active_only=True)
     ]
     force_enabled_action_ids = [
-        function.id
-        for function in Functions.get_functions_by_type("action", active_only=True)
-        if function.is_force_enabled
+        function.id for function in Functions.get_force_enabled_action_functions()
     ]
 
     global_filter_ids = [
@@ -153,9 +151,7 @@ async def get_all_models(request, refresh: bool = False, user: UserModel = None)
         for function in Functions.get_functions_by_type("filter", active_only=True)
     ]
     force_enalbed_filter_ids = [
-        function.id
-        for function in Functions.get_functions_by_type("filter", active_only=True)
-        if function.is_force_enabled
+        function.id for function in Functions.get_force_enabled_filter_functions()
     ]
 
     custom_models = Models.get_all_models()
