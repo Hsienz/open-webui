@@ -74,7 +74,7 @@
 					</div>
 
 					<div>
-						<Switch on:change={toggleForceEnableHandler} bind:state={func.is_global} />
+						<Switch on:change={toggleForceEnableHandler} bind:state={func.is_force_enabled} />
 					</div>
 				</div>
 
