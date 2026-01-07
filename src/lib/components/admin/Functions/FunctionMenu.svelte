@@ -22,7 +22,7 @@
 	export let exportHandler: Function;
 	export let deleteHandler: Function;
 	export let toggleGlobalHandler: Function;
-	export let toggleForceEnableHandler: Function;
+	export let toggleForceEnabledHandler: Function;
 
 	export let onClose: Function;
 
@@ -74,7 +74,7 @@
 					</div>
 
 					<div>
-						<Switch on:change={toggleForceEnableHandler} bind:state={func.is_force_enabled} />
+						<Switch on:change={toggleForceEnabledHandler} bind:state={func.is_force_enabled} />
 					</div>
 				</div>
 

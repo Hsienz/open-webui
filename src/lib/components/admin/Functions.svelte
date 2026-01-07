@@ -15,7 +15,7 @@
 		getFunctionList,
 		getFunctions,
 		loadFunctionByUrl,
-		toggleForceEnableById,
+		toggleForceEnabledById,
 		toggleFunctionById,
 		toggleGlobalById
 	} from '$lib/apis/functions';
@@ -201,8 +201,8 @@
 		}
 	};
 
-	const toggleForceEnableHandler = async (func) => {
-		const res = await toggleForceEnableById(localStorage.token, func.id).catch((error) => {
+	const toggleForceEnabledHandler = async (func) => {
+		const res = await toggleForceEnabledById(localStorage.token, func.id).catch((error) => {
 			toast.error(`${error}`);
 		});
 
@@ -568,9 +568,9 @@
 												toggleGlobalHandler(func);
 											}
 										}}
-										toggleForceEnableHandler={() => {
+										toggleForceEnabledHandler={() => {
 											if (['filter', 'action'].includes(func.type)) {
-												toggleForceEnableHandler(func);
+												toggleForceEnabledHandler(func);
 											}
 										}}
 										onClose={() => {}}

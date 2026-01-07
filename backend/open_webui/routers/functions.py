@@ -308,7 +308,7 @@ async def toggle_global_by_id(id: str, user=Depends(get_admin_user)):
 
 
 ############################
-# toggleForceEnableById
+# toggleForceEnabledById
 ############################
 
 

@@ -321,10 +321,10 @@ export const toggleGlobalById = async (token: string, id: string) => {
   return res;
 };
 
-export const toggleForceEnableById = async (token: string, id: string) => {
+export const toggleForceEnabledById = async (token: string, id: string) => {
   let error = null;
 
-  const res = await fetch(`${WEBUI_API_BASE_URL}/function/id/${id}/toggle/force_enabled`, {
+  const res = await fetch(`${WEBUI_API_BASE_URL}/functions/id/${id}/toggle/force_enabled`, {
     method: 'POST',
     headers: {
       Accept: 'application/json',
