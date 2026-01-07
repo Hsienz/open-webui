@@ -28,11 +28,11 @@ class Function(Base):
     valves = Column(JSONField)
     is_active = Column(Boolean)
     is_global = Column(Boolean)
-    is_force_enabled: bool = False
+    is_force_enabled = Column(Boolean)
     updated_at = Column(BigInteger)
     created_at = Column(BigInteger)
 
-    __table_args__ = (Index("is_global_idx", "is_global"),)
+    __table_args__ = (Index("is_global_idx", "is_global", "is_force_enabled"),)
 
 
 class FunctionMeta(BaseModel):
