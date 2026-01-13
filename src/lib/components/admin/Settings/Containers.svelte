@@ -126,7 +126,7 @@
 
 	const toggleModelContainerHandler = async (container: ModelContainer) => {
 		container.is_loading = true;
-		if (container.is_active) {
+		if (!container.is_active) {
 			await fetch(`${WEBUI_API_BASE_URL}/containers/model/stop`, {
 				method: 'POST',
 				body: JSON.stringify({ model: container.model }),
