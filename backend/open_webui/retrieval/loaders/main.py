@@ -139,52 +139,6 @@ class DoclingLoader:
 
         self.params = params or {}
 
-    def extract_picture_refs(self, groups_map: dict, key: str):
-        body = groups_map.get(key, {})
-        children = body.get("children", [])
-        picture_refs = []
-        for child in children:
-            ref = child.get("$ref", "")
-            if ref.startswith("#/pictures/"):
-                picture_refs.append(ref)
-            elif ref.startswith("#/groups/"):
-                picture_refs.extend(
-                    self.extract_picture_refs(groups_map=groups_map, key=ref)
-                )
-
-        return picture_refs
-
-    def insert_picture_caption(self, json_content: dict, md_content: str):
-        body = json_content.get("body", {})
-        body_ref = body.get("self_ref", "")
-        groups_map = {}
-        groups = json_content.get("groups", [])
-        groups.append(body)
-
-        for group in groups:
-            ref = group.get("self_ref")
-            if not ref:
-                log.error(
-                    "Group without self_ref found in Docling JSON content, skipped"
-                )
-                continue
-            groups_map[ref] = group
-
-        picture_refs = self.extract_picture_refs(groups_map=groups_map, key=body_ref)
-        pictures = json_content.get("pictures", [])
-        picture_map: dict[str, dict] = {
-            picture.get("self_ref"): picture for picture in pictures
-        }
-        for ref in picture_refs:
-            picture = picture_map.get(ref, {})
-            annotations = picture.get("annotations", [])
-            text = "".join([annotation.get("text", "") for annotation in annotations])
-
-            text = "![{}]({})".format(text, ref)
-            md_content = md_content.replace("<!-- image -->", text, 1)
-
-        return md_content
-
     def load(self) -> list[Document]:
         with open(self.file_path, "rb") as f:
             headers = {}
@@ -209,15 +163,7 @@ class DoclingLoader:
         if r.ok:
             result = r.json()
             document_data = result.get("document", {})
-            text = document_data.get("md_content")
-            if not text:
-                text = "<No text content found>"
-            elif self.params.get("picture_caption_insertion"):
-                json_content = document_data.get("json_content", {})
-                text = self.insert_picture_caption(
-                    json_content=json_content, md_content=text
-                )
-
+            text = document_data.get("md_content", "<No text content found>")
             metadata = {"Content-Type": self.mime_type} if self.mime_type else {}
 
             log.debug("Docling extracted text: %s", text)
@@ -391,7 +337,6 @@ class Loader:
         elif self.engine == "mineru" and file_ext in [
             "pdf"
         ]:  # MinerU currently only supports PDF
-
             mineru_timeout = self.kwargs.get("MINERU_API_TIMEOUT", 300)
             if mineru_timeout:
                 try:
