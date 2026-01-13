@@ -232,7 +232,7 @@ class Container:
         if use_cache:
             return sorted(container.info_mapping.keys())
         else:
-            path = "/root/.cache/huggingface/hub"
+            path = "/opt/models"
             dirs = []
             for name in os.listdir(path):
                 if not os.path.isdir(os.path.join(path, name)):

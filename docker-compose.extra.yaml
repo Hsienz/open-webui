@@ -9,7 +9,7 @@ services:
       - ./backend:/app/backend
       - ./src:/app/src
       - open-webui:/app/backend/data
-      - ${HF_HOME:-${HOME}/.cache/huggingface}:/root/.cache/huggingface
+      - ${MODEL_DIR:-${HOME}/.cache/huggingface/hub}:/opt/models
       - ${DOCKER_HOST:-/var/run/docker.sock}:/var/run/docker.sock
     ports:
       - ${OPEN_WEBUI_PORT-3000}:8080
