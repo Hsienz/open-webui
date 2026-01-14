@@ -430,7 +430,7 @@
 									</button>
 								</Tooltip>
 
-								{#if user.role !== 'admin'}
+								{#if $user?.role === 'admin' && user.id !== $user?.id}
 									<Tooltip content={$i18n.t('Delete User')}>
 										<button
 											class="self-center w-fit text-sm px-2 py-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
@@ -455,7 +455,6 @@
 											</svg>
 										</button>
 									</Tooltip>
-								{/if}
 							</div>
 						</td>
 					</tr>
