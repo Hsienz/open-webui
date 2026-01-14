@@ -140,7 +140,7 @@
 											<select
 												class="w-full dark:bg-gray-900 text-sm bg-transparent disabled:text-gray-500 dark:disabled:text-gray-500 outline-hidden"
 												bind:value={_user.role}
-												disabled={_user.id == sessionUser.id}
+												disabled={_user.id == sessionUser.id || sessionUser.role == 'admin'}
 												required
 											>
 												<option value="admin">{$i18n.t('Admin')}</option>
