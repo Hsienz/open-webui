@@ -245,13 +245,13 @@
 			title: 'Database',
 			route: '/admin/settings/db',
 			keywords: ['database', 'export', 'import', 'backup', 'chats', 'users']
-		},
-		{
-			id: 'containers',
-			title: 'Containers',
-			route: '/admin/settings/containers',
-			keywords: ['containers', 'models', 'docker']
 		}
+		// {
+		// 	id: 'containers',
+		// 	title: 'Containers',
+		// 	route: '/admin/settings/containers',
+		// 	keywords: ['containers', 'models', 'docker']
+		// }
 	];
 
 	const setFilteredSettings = () => {
@@ -505,18 +505,18 @@
 								d="M8 12.5c1.84 0 3.579-.37 4.914-1.037.366-.183.74-.41 1.086-.684V12c0 1.657-2.686 3-6 3s-6-1.343-6-3v-1.22c.346.273.72.5 1.087.683C4.42 12.131 6.16 12.5 8 12.5Z"
 							/>
 						</svg>
-					{:else if tab.id === 'containers'}
-						<svg
-							xmlns="http://www.w3.org/2000/svg"
-							height="16px"
-							viewBox="0 -960 960 960"
-							width="16px"
-							fill="currentColor"
-						>
-							<path
-								d="M444-189v-270L216-591v270l228 132Zm72 0 228-131v-270L516-459v270Zm-36-333 235-135-236-135-234 135 235 135ZM180-258q-17.1-9.88-26.55-26.06Q144-300.23 144-320v-320q0-19.77 9.45-35.94Q162.9-692.12 180-702l263-152q17-10 37-10t37 10l263 152q17.1 9.88 26.55 26.06Q816-659.77 816-640v320q0 19.77-9.45 35.94Q797.1-267.88 780-258L516-105q-17.13 10-36.07 10Q461-95 444-105L180-258Zm300-222Z"
-							/>
-						</svg>
+						<!-- {:else if tab.id === 'containers'} -->
+						<!-- 	<svg -->
+						<!-- 		xmlns="http://www.w3.org/2000/svg" -->
+						<!-- 		height="16px" -->
+						<!-- 		viewBox="0 -960 960 960" -->
+						<!-- 		width="16px" -->
+						<!-- 		fill="currentColor" -->
+						<!-- 	> -->
+						<!-- 		<path -->
+						<!-- 			d="M444-189v-270L216-591v270l228 132Zm72 0 228-131v-270L516-459v270Zm-36-333 235-135-236-135-234 135 235 135ZM180-258q-17.1-9.88-26.55-26.06Q144-300.23 144-320v-320q0-19.77 9.45-35.94Q162.9-692.12 180-702l263-152q17-10 37-10t37 10l263 152q17.1 9.88 26.55 26.06Q816-659.77 816-640v320q0 19.77-9.45 35.94Q797.1-267.88 780-258L516-105q-17.13 10-36.07 10Q461-95 444-105L180-258Zm300-222Z" -->
+						<!-- 		/> -->
+						<!-- 	</svg> -->
 					{/if}
 				</div>
 				<div class=" self-center">{$i18n.t(tab.title)}</div>
@@ -605,8 +605,8 @@
 					toast.success($i18n.t('Settings saved successfully!'));
 				}}
 			/>
-		{:else if selectedTab === 'containers'}
-			<Containers />
+			<!-- {:else if selectedTab === 'containers'} -->
+			<!-- 	<Containers /> -->
 		{/if}
 	</div>
 </div>
