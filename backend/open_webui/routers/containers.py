@@ -82,6 +82,6 @@ async def start_emit(user=Depends(get_verified_user)):
     container.start_emit_thread()
 
 
-@router.put("emit/stop")
+@router.put("/emit/stop")
 async def stop_emit(user=Depends(get_verified_user)):
     container.stop_emit_thread()

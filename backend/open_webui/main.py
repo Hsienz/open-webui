@@ -94,6 +94,7 @@ from open_webui.routers import (
     utils,
     scim,
     containers,
+    monitor,
 )
 
 from open_webui.routers.retrieval import (
@@ -1442,6 +1443,7 @@ app.include_router(
 )
 app.include_router(utils.router, prefix="/api/v1/utils", tags=["utils"])
 app.include_router(containers.router, prefix="/api/v1/containers", tags=["containers"])
+app.include_router(monitor.router, prefix="/api/v1/monitor", tags=["monitor"])
 
 # SCIM 2.0 API for identity management
 if ENABLE_SCIM:
@@ -1669,7 +1671,6 @@ async def chat_completion(
             if not metadata["chat_id"].startswith(
                 "local:"
             ):  # temporary chats are not stored
-
                 # Verify chat ownership
                 chat = Chats.get_chat_by_id_and_user_id(metadata["chat_id"], user.id)
                 if chat is None and user.role != "admin":  # admins can access any chat

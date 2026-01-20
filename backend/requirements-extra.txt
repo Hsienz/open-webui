@@ -155,3 +155,4 @@ opentelemetry-instrumentation-aiohttp-client==0.60b1
 
 ## Extra
 docker
+nvsmi
