@@ -28,10 +28,10 @@ def get_gpu_info(user=Depends(get_verified_user)):
 
 
 async def _start_monitoring():
-    while not monitor.stop_monitoring:
+    while not monitor.stop_monitoring.is_set():
         data = {"type": "monitor:gpu", "data": _get_gpu_info()}
         await sio.emit("monitor", data)
-        await asyncio.sleep(3000)
+        await asyncio.sleep(3)
 
 
 @router.post("/start")
@@ -39,7 +39,7 @@ async def start_monitor(user=Depends(get_verified_user)):
     if monitor.task and not monitor.task.done():
         return {"status": "already running"}
     monitor.stop_monitoring.clear()
-    monitor.task = asyncio.Task(_start_monitoring())
+    monitor.task = asyncio.create_task(_start_monitoring())
     return {"status": "running"}
 
 

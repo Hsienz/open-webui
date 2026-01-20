@@ -289,14 +289,6 @@ async def enter_room_for_users(room: str, user_ids: list[str]):
         log.debug(f"Failed to make users {user_ids} join room {room}: {e}")
 
 
-@sio.on("container")
-async def docker_container_model(sid, data):
-    model = data["model"]
-    status = data["status"]
-    log.debug("model container {}: {}", model, status)
-    USAGE_POOL[model] = {status: status}
-
-
 @sio.on("usage")
 async def usage(sid, data):
     if sid in SESSION_POOL:
