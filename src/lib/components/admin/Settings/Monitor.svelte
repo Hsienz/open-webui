@@ -34,6 +34,7 @@
 		$socket?.on('monitor', monitorHandler);
 
 		await fetch(`${WEBUI_API_BASE_URL}/monitor/start`, {
+			method: 'POST',
 			headers: {
 				Authorization: `Bearer ${token}`
 			}
@@ -43,6 +44,7 @@
 	onDestroy(async () => {
 		$socket?.off('monitor');
 		await fetch(`${WEBUI_API_BASE_URL}/monitor/stop`, {
+			method: 'POST',
 			headers: {
 				Authorization: `Bearer ${token}`
 			}
