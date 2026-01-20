@@ -27,7 +27,7 @@ class StopModelForm(BaseModel):
 
 @router.get("/models")
 async def get_model_container(user=Depends(get_verified_user)):
-    return container.get_model_container_list(use_cache=True)
+    return container.get_model_container_list(use_cache=False)
 
 
 @router.post("/model/run")
