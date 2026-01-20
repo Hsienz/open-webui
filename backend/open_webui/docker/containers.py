@@ -64,8 +64,7 @@ class Container:
         self.log_thread = None
         self.stop_emit = False
 
-        for model in Container.get_model_container_list():
-            self.info_mapping[model] = ContainerInfo(None)
+        self.get_model_container_list()
 
     def run_model_container(self, model: str, command=None, **kwargs):
         container = self.client.containers.run(
@@ -204,7 +203,7 @@ class Container:
             id = event.get("id")
             status = event.get("status")
             info = self.info_mapping.get(name)
-            if info:
+            if info and status:
                 if info.set_status_with_priority(status):
                     await self._emit_model_container_info(
                         name, info.status.to_str(), id
@@ -227,8 +226,7 @@ class Container:
     def parse_model_container_name_to_model(cls, name: str) -> str:
         return "/".join(name.split("--")[1:])
 
-    @classmethod
-    def get_model_container_list(cls, use_cache: bool = False):
+    def get_model_container_list(self, use_cache: bool = False):
         if use_cache:
             return sorted(container.info_mapping.keys())
         else:
@@ -248,6 +246,11 @@ class Container:
                 dirs.append(name)
 
             dirs.sort()
+
+            for x in dirs:
+                if x not in self.info_mapping:
+                    self.info_mapping[x] = ContainerInfo(None)
+
             return dirs
 
 
