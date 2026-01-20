@@ -52,6 +52,6 @@
 
 <div class="flex">
 	{#each gpu_info as x}
-		<div>x</div>
+		<div>{x}</div>
 	{/each}
 </div>
