@@ -20,13 +20,11 @@
 	const token = localStorage.token;
 	let gpu_info: GpuInfo[] = [];
 	const monitorHandler = async (event, cb) => {
-		console.log('AAAAAA', event);
 		const type = event?.type ?? null;
 		const data = event?.data ?? null;
 
 		if (type === 'monitor:gpu') {
-			const json_data = JSON.parse(data);
-			gpu_info = json_data;
+			gpu_info = data;
 		}
 	};
 
