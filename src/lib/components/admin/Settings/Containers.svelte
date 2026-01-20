@@ -7,6 +7,7 @@
 	import { getContext } from 'svelte';
 	import { contains } from 'vega-lite';
 	import { toast } from 'svelte-sonner';
+	import Monitor from './Monitor.svelte';
 
 	interface ModelContainer {
 		model: string;
@@ -267,5 +268,6 @@
 				</div>
 			</div>
 		{/each}
+		<Monitor />
 	</div>
 {/if}
