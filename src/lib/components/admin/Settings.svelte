@@ -245,13 +245,13 @@
 			title: 'Database',
 			route: '/admin/settings/db',
 			keywords: ['database', 'export', 'import', 'backup', 'chats', 'users']
+		},
+		{
+			id: 'containers',
+			title: 'Containers',
+			route: '/admin/settings/containers',
+			keywords: ['containers', 'models', 'docker']
 		}
-		// {
-		// 	id: 'containers',
-		// 	title: 'Containers',
-		// 	route: '/admin/settings/containers',
-		// 	keywords: ['containers', 'models', 'docker']
-		// }
 	];
 
 	const setFilteredSettings = () => {
@@ -605,8 +605,8 @@
 					toast.success($i18n.t('Settings saved successfully!'));
 				}}
 			/>
-			<!-- {:else if selectedTab === 'containers'} -->
-			<!-- 	<Containers /> -->
+		{:else if selectedTab === 'containers'}
+			<Containers />
 		{/if}
 	</div>
 </div>
