@@ -35,7 +35,7 @@ async def _start_monitoring():
 
 
 @router.post("/start")
-def start_monitor(user=Depends(get_verified_user)):
+async def start_monitor(user=Depends(get_verified_user)):
     if monitor.task and not monitor.task.done():
         return {"status": "already running"}
     monitor.stop_monitoring.clear()
