@@ -57,7 +57,10 @@ class ContainerInfo:
 
 class Container:
     def __init__(self) -> None:
-        self.client = docker.from_env()
+        try:
+            self.client = docker.from_env()
+        except Exception as e:
+            pass
         self.info_mapping: dict[str, ContainerInfo] = {}
 
         self.emit_thread = None

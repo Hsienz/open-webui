@@ -268,6 +268,8 @@
 				</div>
 			</div>
 		{/each}
-		<Monitor />
+		<div class="max-h-[1/2]">
+			<Monitor />
+		</div>
 	</div>
 {/if}
