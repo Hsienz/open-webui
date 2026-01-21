@@ -25,13 +25,7 @@
 		const data = event?.data ?? null;
 
 		if (type === 'monitor:gpu') {
-			let json_data = JSON.parse(data);
-			if (Array.isArray(json_data)) {
-				gpu_info = json_data;
-			} else {
-				gpu_info = [json_data];
-			}
-			console.log(gpu_info);
+			gpu_info = data;
 		}
 	};
 
