@@ -19,7 +19,7 @@ monitor = Monitor()
 
 def _get_gpu_info():
     gpus = list(nvsmi.get_gpus())
-    return [x.to_json() for x in gpus]
+    return [x.__dict__ for x in gpus]
 
 
 @router.get("/get_gpu_info")
