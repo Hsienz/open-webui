@@ -54,7 +54,7 @@
 <div
 	class="{gpu_info.length < 2
 		? 'sm:grid-cols-1'
-		: 'sm:grid-cols-2'} grid grid-cols-1 w-full h-full gap-2"
+		: 'sm:grid-cols-2'} grid grid-cols-1 w-full h-full gap-2 auto-rows-min"
 >
 	{#each gpu_info as x (x.uuid)}
 		<div class="flex bg-gray-800 rounded-lg h-24 p-2 items-center">
