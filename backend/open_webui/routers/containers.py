@@ -51,6 +51,16 @@ async def run_model_container(
                 device_ids = None
                 break
 
+    device_requests = []
+    if device_ids or device_requests:
+        device_requests.append(
+            DeviceRequest(
+                driver="nvidia",
+                capabilities=[["gpu"]],
+                device_ids=device_ids,
+                count=count,
+            )
+        )
     background_tasks.add_task(
         container.run_model_container_wrapper,
         model=request.model,
@@ -60,14 +70,7 @@ async def run_model_container(
         tensor_parallel_size=request.tensor_parallel_size,
         tool_call_parser=request.tool_call_parser,
         gpu_memory_utilization=request.gpu_memory_utilization,
-        device_requests=[
-            DeviceRequest(
-                driver="nvidia",
-                capabilities=[["gpu"]],
-                device_ids=device_ids,
-                count=count,
-            )
-        ],
+        device_requests=device_requests,
     )
 
     return {}
