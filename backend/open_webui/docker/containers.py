@@ -149,6 +149,8 @@ class Container:
         info.tensor_parallel_size = tensor_parallel_size
         info.gpu_memory_utilization = gpu_memory_utilization
         device_requests = kwargs.get("device_requests")
+        log.debug("kwargs: ", kwargs)
+        log.debug("device_requests: ", device_requests)
         if device_requests and isinstance(device_requests, list):
             request: DeviceRequest = device_requests[0]
             info.device_ids = request.device_ids

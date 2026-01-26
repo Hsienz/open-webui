@@ -232,7 +232,7 @@
 										<input
 											id={`${container.model}-device-ids`}
 											name="device-ids"
-											placeholder="0,1"
+											placeholder="-1, 0,1"
 											class="w-full"
 											disabled={container.is_active}
 											bind:value={container.device_ids}

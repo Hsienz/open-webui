@@ -2,6 +2,7 @@ from functools import cache
 from fastapi.routing import APIRouter
 from open_webui.utils.auth import get_verified_user
 from fastapi import BackgroundTasks, Depends
+from torch import device
 from open_webui.docker.containers import container
 from pydantic import BaseModel
 from typing import Optional
@@ -37,6 +38,19 @@ async def run_model_container(
     user=Depends(get_verified_user),
 ):
     port = 8000
+    count = None
+    device_ids = (
+        [id.strip() for id in request.device_ids.split(",")]
+        if request.device_ids
+        else None
+    )
+    if device_ids:
+        for x in device_ids:
+            if x == "-1":
+                count = -1
+                device_ids = None
+                break
+
     background_tasks.add_task(
         container.run_model_container_wrapper,
         model=request.model,
@@ -50,10 +64,8 @@ async def run_model_container(
             DeviceRequest(
                 driver="nvidia",
                 capabilities=[["gpu"]],
-                device_ids=[id.strip() for id in request.device_ids.split(",")]
-                if request.device_ids is not None
-                else None,
-                count=-1 if request.device_ids is None else None,
+                device_ids=device_ids,
+                count=count,
             )
         ],
     )
