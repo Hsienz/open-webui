@@ -173,112 +173,115 @@
 	{#if loading}
 		<Spinner />
 	{:else}
-		<Resizable.Pane defaultSize={75}>
-			<ScrollArea class="h-full py-2">
-				<div class={'flex flex-col gap-y-4 text-sm'}>
-					{#each modelContainers as container (container.model)}
-						<div
-							class="flex border-[1px] rounded-xl justify-between items-center h-20 px-4 opacity-50 hover:opacity-100 transition-all duration-300"
-						>
-							<div class="flex items-center gap-x-2 grow">
-								<svg
-									xmlns="http://www.w3.org/2000/svg"
-									height="40px"
-									viewBox="0 -960 960 960"
-									width="40px"
-									fill="currentColor"
-								>
-									<path
-										d="M446.67-163.67V-461l-260-150.33V-314l260 150.33Zm66.66 0 260-150.33v-298l-260 150.89v297.44ZM480-518l256.33-149L480-815.33 223-667l257 149ZM153.33-256q-15.83-9.28-24.58-24.48-8.75-15.19-8.75-33.19v-332.66q0-18 8.75-33.19 8.75-15.2 24.58-24.48l293.34-169q15.88-9 33.44-9 17.56 0 33.22 9l293.34 169q15.83 9.28 24.58 24.48 8.75 15.19 8.75 33.19v332.66q0 18-8.75 33.19-8.75 15.2-24.58 24.48L513.33-87q-15.88 9-33.44 9-17.56 0-33.22-9L153.33-256ZM480-480Z"
-									/>
-								</svg>
-								<div class="flex flex-col">
-									<div class="flex gap-2">
-										<h4 class="font-bold">
-											{container.model}
-										</h4>
-										<span class="text-xs mt-auto">
-											{#if container.is_loading}
-												<Spinner />
-											{:else}
-												{container.status}
-											{/if}
-										</span>
+		<div class="grow">
+			<Resizable.Pane defaultSize={80}>
+				<ScrollArea class="h-full py-2">
+					<div class={'flex flex-col gap-y-4 text-sm'}>
+						{#each modelContainers as container (container.model)}
+							<div
+								class="flex border-[1px] rounded-xl justify-between items-center h-20 px-4 opacity-50 hover:opacity-100 transition-all duration-300"
+							>
+								<div class="flex items-center gap-x-2 grow">
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										height="40px"
+										viewBox="0 -960 960 960"
+										width="40px"
+										fill="currentColor"
+									>
+										<path
+											d="M446.67-163.67V-461l-260-150.33V-314l260 150.33Zm66.66 0 260-150.33v-298l-260 150.89v297.44ZM480-518l256.33-149L480-815.33 223-667l257 149ZM153.33-256q-15.83-9.28-24.58-24.48-8.75-15.19-8.75-33.19v-332.66q0-18 8.75-33.19 8.75-15.2 24.58-24.48l293.34-169q15.88-9 33.44-9 17.56 0 33.22 9l293.34 169q15.83 9.28 24.58 24.48 8.75 15.19 8.75 33.19v332.66q0 18-8.75 33.19-8.75 15.2-24.58 24.48L513.33-87q-15.88 9-33.44 9-17.56 0-33.22-9L153.33-256ZM480-480Z"
+										/>
+									</svg>
+									<div class="flex flex-col">
+										<div class="flex gap-2">
+											<h4 class="font-bold">
+												{container.model}
+											</h4>
+											<span class="text-xs mt-auto">
+												{#if container.is_loading}
+													<Spinner />
+												{:else}
+													{container.status}
+												{/if}
+											</span>
+										</div>
+										<span>test text</span>
 									</div>
-									<span>test text</span>
+								</div>
+
+								<div class="flex items-center gap-x-2">
+									<span class="w-16">
+										<label for={`${container.model}-port`}>port*</label>
+										<input
+											id={`${container.model}-port`}
+											name="port"
+											type="number"
+											min="{0},"
+											max="{65535},"
+											placeholder="8000"
+											class="w-full"
+											disabled={container.is_active}
+											bind:value={container.port}
+											required
+										/>
+									</span>
+
+									<span class="w-20">
+										<label for={`${container.model}-device-ids`}>device_ids</label>
+										<input
+											id={`${container.model}-device-ids`}
+											name="device-ids"
+											placeholder="0,1"
+											class="w-full"
+											disabled={container.is_active}
+											bind:value={container.device_ids}
+										/>
+									</span>
+
+									<span class="border-l-[1px] border-solid"></span>
+
+									<span class="w-24">
+										<label for={`${container.model}-gpu_memory_utilization`}
+											>gpu_memory_utilization</label
+										>
+										<input
+											id={`${container.model}-gpu_memory_utilization`}
+											name="gpu_memory_utilization"
+											placeholder="0.9"
+											class="w-full"
+											disabled={container.is_active}
+											bind:value={container.gpu_memory_utilization}
+										/>
+									</span>
+
+									<span class="w-24">
+										<label for={`${container.model}-tensor_parallel_size`}
+											>tensor_parallel_size</label
+										>
+										<input
+											id={`${container.model}-tensor_parallel_size`}
+											name="tensor_parallel_size"
+											placeholder="1"
+											class="w-full"
+											disabled={container.is_active}
+											bind:value={container.tensor_parallel_size}
+										/>
+									</span>
+
+									<Switch
+										bind:state={container.is_active}
+										on:change={async () => {
+											toggleModelContainerHandler(container);
+										}}
+									/>
 								</div>
 							</div>
-
-							<div class="flex items-center gap-x-2">
-								<span class="w-16">
-									<label for={`${container.model}-port`}>port*</label>
-									<input
-										id={`${container.model}-port`}
-										name="port"
-										type="number"
-										min="{0},"
-										max="{65535},"
-										placeholder="8000"
-										class="w-full"
-										disabled={container.is_active}
-										bind:value={container.port}
-										required
-									/>
-								</span>
-
-								<span class="w-20">
-									<label for={`${container.model}-device-ids`}>device_ids</label>
-									<input
-										id={`${container.model}-device-ids`}
-										name="device-ids"
-										placeholder="0,1"
-										class="w-full"
-										disabled={container.is_active}
-										bind:value={container.device_ids}
-									/>
-								</span>
-
-								<span class="border-l-[1px] border-solid"></span>
-
-								<span class="w-24">
-									<label for={`${container.model}-gpu_memory_utilization`}
-										>gpu_memory_utilization</label
-									>
-									<input
-										id={`${container.model}-gpu_memory_utilization`}
-										name="gpu_memory_utilization"
-										placeholder="0.9"
-										class="w-full"
-										disabled={container.is_active}
-										bind:value={container.gpu_memory_utilization}
-									/>
-								</span>
-
-								<span class="w-24">
-									<label for={`${container.model}-tensor_parallel_size`}>tensor_parallel_size</label
-									>
-									<input
-										id={`${container.model}-tensor_parallel_size`}
-										name="tensor_parallel_size"
-										placeholder="1"
-										class="w-full"
-										disabled={container.is_active}
-										bind:value={container.tensor_parallel_size}
-									/>
-								</span>
-
-								<Switch
-									bind:state={container.is_active}
-									on:change={async () => {
-										toggleModelContainerHandler(container);
-									}}
-								/>
-							</div>
-						</div>
-					{/each}
-				</div>
-			</ScrollArea>
-		</Resizable.Pane>
+						{/each}
+					</div>
+				</ScrollArea>
+			</Resizable.Pane>
+		</div>
 	{/if}
 	<Resizable.Handle class="bg-white" withHandle />
 	<Resizable.Pane defaultSize={20} class="py-2">
