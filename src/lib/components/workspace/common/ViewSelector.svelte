@@ -19,10 +19,10 @@
 </script>
 
 <Select.Root
-	selected={items.find((item) => item.value === value)}
+	type="single"
 	{items}
-	onSelectedChange={(selectedItem) => {
-		value = selectedItem.value;
+	onValueChange={(selectedItem) => {
+		value = selectedItem;
 		onChange(value);
 	}}
 >
@@ -30,16 +30,15 @@
 		class="relative w-full flex items-center gap-0.5 px-2.5 py-1.5 bg-gray-50 dark:bg-gray-850 rounded-xl "
 		aria-label={placeholder}
 	>
-		<Select.Value
+		<Select.Item
 			class="inline-flex h-input px-0.5 w-full outline-hidden bg-transparent truncate  placeholder-gray-400  focus:outline-hidden"
-			{placeholder}
+			value={placeholder}
 		/>
 		<ChevronDown className=" size-3.5" strokeWidth="2.5" />
 	</Select.Trigger>
 
 	<Select.Content
 		class="rounded-2xl min-w-[170px] p-1 border border-gray-100  dark:border-gray-800 z-50 bg-white dark:bg-gray-850 dark:text-white shadow-lg"
-		sameWidth={false}
 		align="start"
 	>
 		<slot>
