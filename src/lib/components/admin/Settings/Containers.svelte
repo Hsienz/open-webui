@@ -166,14 +166,14 @@
 	};
 </script>
 
-<Resizable.PaneGroup direction="vertical">
-	<div>
-		{$i18n.t('Containers')}
-	</div>
-	{#if loading}
-		<Spinner />
-	{:else}
-		<div class="grow">
+<div>
+	{$i18n.t('Containers')}
+</div>
+{#if loading}
+	<Spinner />
+{:else}
+	<div class="grow">
+		<Resizable.PaneGroup direction="vertical">
 			<Resizable.Pane defaultSize={80}>
 				<ScrollArea class="h-full py-2">
 					<div class={'flex flex-col gap-y-4 text-sm'}>
@@ -281,12 +281,12 @@
 					</div>
 				</ScrollArea>
 			</Resizable.Pane>
-		</div>
-	{/if}
-	<Resizable.Handle class="bg-white" withHandle />
-	<Resizable.Pane defaultSize={20} class="py-2">
-		<ScrollArea class="h-full">
-			<Monitor />
-		</ScrollArea>
-	</Resizable.Pane>
-</Resizable.PaneGroup>
+			<Resizable.Handle class="bg-white" withHandle />
+			<Resizable.Pane defaultSize={20} class="py-2">
+				<ScrollArea class="h-full">
+					<Monitor />
+				</ScrollArea>
+			</Resizable.Pane>
+		</Resizable.PaneGroup>
+	</div>
+{/if}
