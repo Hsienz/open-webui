@@ -167,14 +167,14 @@
 </script>
 
 <Resizable.PaneGroup direction="vertical">
-	<Resizable.Pane defaultSize={80}>
-		<div>
-			{$i18n.t('Containers')}
-		</div>
-		{#if loading}
-			<Spinner />
-		{:else}
-			<ScrollArea class="h-full">
+	<div>
+		{$i18n.t('Containers')}
+	</div>
+	{#if loading}
+		<Spinner />
+	{:else}
+		<Resizable.Pane defaultSize={75}>
+			<ScrollArea class="h-full py-2">
 				<div class={'flex flex-col gap-y-4 text-sm'}>
 					{#each modelContainers as container (container.model)}
 						<div
@@ -278,8 +278,8 @@
 					{/each}
 				</div>
 			</ScrollArea>
-		{/if}
-	</Resizable.Pane>
+		</Resizable.Pane>
+	{/if}
 	<Resizable.Handle class="bg-white" withHandle />
 	<Resizable.Pane defaultSize={20} class="py-2">
 		<ScrollArea class="h-full">
