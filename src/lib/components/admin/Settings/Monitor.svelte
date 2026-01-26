@@ -68,7 +68,10 @@
 					{x.name}
 				</p>
 				<p>
-					{$i18n.t('Used')}: {x.mem_used}/{x.mem_total} MB ({(x.mem_used / x.mem_total) * 100}%)
+					{$i18n.t('Used')}: {x.mem_used}/{x.mem_total} MB ({(
+						(x.mem_used / x.mem_total) *
+						100
+					).toFixed(2)}%)
 				</p>
 				<p>{$i18n.t('Temperature')}: {x.temperature}°C</p>
 			</div>
