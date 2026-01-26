@@ -67,7 +67,9 @@
 				<p class="font-semibold text-md">
 					{x.name}
 				</p>
-				<p>{$i18n.t('Used')}: {x.mem_used}/{x.mem_total} MB ({x.mem_used / x.mem_used}%)</p>
+				<p>
+					{$i18n.t('Used')}: {x.mem_used}/{x.mem_total} MB ({(x.mem_used / x.mem_total) * 100}%)
+				</p>
 				<p>{$i18n.t('Temperature')}: {x.temperature}°C</p>
 			</div>
 		</div>
