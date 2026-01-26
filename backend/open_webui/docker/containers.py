@@ -136,6 +136,12 @@ class Container:
             command.append("--tool-call-parser")
             command.append(tool_call_parser)
 
+        device_requests = kwargs.get("device_requests")
+        if device_requests:
+            command.append("--device gpu")
+        else:
+            command.append(("--device cpu"))
+
         command = [str(c) for c in command]
         container = self.run_model_container(
             model=model,
@@ -148,7 +154,6 @@ class Container:
         info.port = port
         info.tensor_parallel_size = tensor_parallel_size
         info.gpu_memory_utilization = gpu_memory_utilization
-        device_requests = kwargs.get("device_requests")
         log.debug("kwargs: %s", kwargs)
         log.debug("device_requests: %s", device_requests)
         if device_requests and isinstance(device_requests, list):
