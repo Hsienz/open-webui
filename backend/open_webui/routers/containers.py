@@ -1,4 +1,5 @@
 from functools import cache
+import logging
 from fastapi.routing import APIRouter
 from open_webui.utils.auth import get_verified_user
 from fastapi import BackgroundTasks, Depends
@@ -10,6 +11,7 @@ from docker.types import DeviceRequest
 from open_webui.docker.containers import Container
 
 
+log = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -52,7 +54,7 @@ async def run_model_container(
                 break
 
     device_requests = []
-    if device_ids or device_requests:
+    if device_ids or count:
         device_requests.append(
             DeviceRequest(
                 driver="nvidia",
@@ -61,6 +63,7 @@ async def run_model_container(
                 count=count,
             )
         )
+    log.debug("%s\n%s\n%s", device_ids, count, device_requests)
     background_tasks.add_task(
         container.run_model_container_wrapper,
         model=request.model,

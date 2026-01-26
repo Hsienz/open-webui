@@ -149,7 +149,8 @@
 				gpus: container.device_ids ? `device=${container.device_ids?.trim()}` : undefined,
 				model: container.model,
 				gpu_memory_utilization: container.gpu_memory_utilization,
-				tensor_parallel_size: container.tensor_parallel_size
+				tensor_parallel_size: container.tensor_parallel_size,
+				device_ids: container.device_ids
 			};
 			await fetch(`${WEBUI_API_BASE_URL}/containers/model/run`, {
 				method: 'POST',
