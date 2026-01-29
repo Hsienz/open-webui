@@ -1,0 +1,36 @@
+services:
+  open-webui:
+    build:
+      context: .
+      dockerfile: Dockerfile.extra.fast
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG-main}
+    container_name: open-webui
+    volumes:
+      - ./backend:/app/backend
+      - ./src:/app/src
+      - open-webui:/app/backend/data
+      - ${MODEL_DIR:-${HOME}/.cache/huggingface/hub}:/opt/models
+      - ${DOCKER_HOST:-/var/run/docker.sock}:/var/run/docker.sock
+    ports:
+      - ${OPEN_WEBUI_PORT-3000}:8080
+    environment:
+      - 'WEBUI_SECRET_KEY='
+      - GLOBAL_LOG_LEVEL=DEBUG
+      - ENABLE_API_KEYS=true
+      - USE_OLLAMA=false
+      - ENABLE_VERSION_UPDATE_CHECK=false
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+
+volumes:
+  open-webui:
+    external: true
