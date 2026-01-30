@@ -205,7 +205,7 @@
 
 			<DropdownMenu.Item
 				class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer"
-				onSelect={async () => {
+				on:click={async () => {
 					show = false;
 
 					await showSettings.set(true);
@@ -224,7 +224,7 @@
 
 			<DropdownMenu.Item
 				class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition cursor-pointer"
-				onSelect={async () => {
+				on:click={async () => {
 					show = false;
 
 					dispatch('show', 'archived-chat');
@@ -244,14 +244,15 @@
 
 			{#if role === 'admin'}
 				<DropdownMenu.Item
+					as="a"
+					href="/playground"
 					class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition select-none"
-					onSelect={async () => {
+					on:click={async () => {
 						show = false;
 						if ($mobile) {
 							await tick();
 							showSidebar.set(false);
 						}
-						goto('/playground');
 					}}
 				>
 					<div class=" self-center mr-3">
@@ -260,14 +261,15 @@
 					<div class=" self-center truncate">{$i18n.t('Playground')}</div>
 				</DropdownMenu.Item>
 				<DropdownMenu.Item
+					as="a"
+					href="/admin"
 					class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition select-none"
-					onSelect={async () => {
+					on:click={async () => {
 						show = false;
 						if ($mobile) {
 							await tick();
 							showSidebar.set(false);
 						}
-						goto('/admin');
 					}}
 				>
 					<div class=" self-center mr-3">
@@ -284,12 +286,14 @@
 
 				{#if $user?.role === 'admin'}
 					<DropdownMenu.Item
+						as="a"
+						target="_blank"
 						class="flex gap-3 items-center py-1.5 px-3 text-sm select-none w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition"
 						id="chat-share-button"
-						onSelect={() => {
+						on:click={() => {
 							show = false;
-							window.open('https://docs.openwebui.com', '_blank');
 						}}
+						href="https://docs.openwebui.com"
 					>
 						<QuestionMarkCircle className="size-5" />
 						<div class="flex items-center">{$i18n.t('Documentation')}</div>
@@ -297,12 +301,14 @@
 
 					<!-- Releases -->
 					<DropdownMenu.Item
+						as="a"
+						target="_blank"
 						class="flex gap-3 items-center py-1.5 px-3 text-sm select-none w-full cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition"
 						id="chat-share-button"
-						onSelect={() => {
+						on:click={() => {
 							show = false;
-							window.open('https://github.com/open-webui/open-webui/releases', '_blank');
 						}}
+						href="https://github.com/open-webui/open-webui/releases"
 					>
 						<Map className="size-5" />
 						<div class="flex items-center">{$i18n.t('Releases')}</div>
@@ -312,7 +318,7 @@
 				<DropdownMenu.Item
 					class="flex gap-3 items-center py-1.5 px-3 text-sm select-none w-full  hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition cursor-pointer"
 					id="chat-share-button"
-					onSelect={async () => {
+					on:click={async () => {
 						show = false;
 						showShortcuts.set(!$showShortcuts);
 
@@ -331,7 +337,7 @@
 
 			<DropdownMenu.Item
 				class="flex rounded-xl py-1.5 px-3 w-full hover:bg-gray-50 dark:hover:bg-gray-800 transition"
-				onSelect={async () => {
+				on:click={async () => {
 					const res = await userSignOut();
 					user.set(null);
 					localStorage.removeItem('token');
