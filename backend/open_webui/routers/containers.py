@@ -92,7 +92,8 @@ async def stop_model_container(
 
 @router.get("/model/{model}")
 async def get_container_status(model: str, user=Depends(get_verified_user)):
-    return container.get_model_container_status(model)
+    model_list = model.split(",")
+    return [container.get_model_container_status(model.strip()) for model in model_list]
 
 
 @router.put("/emit/start")

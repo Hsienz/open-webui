@@ -72,27 +72,30 @@
 			return;
 		}
 
-		for (const [i, model] of modelList.entries()) {
-			const containerInfo = await fetch(`${WEBUI_API_BASE_URL}/containers/model/${model}`, {
+		const containerInfos = await fetch(
+			`${WEBUI_API_BASE_URL}/containers/model/${modelList.join(',')}`,
+			{
 				method: 'GET',
 				headers: {
 					Authorization: `Bearer ${token}`
 				}
+			}
+		)
+			.then(async (res) => {
+				if (!res.ok) throw await res.json();
+				return res.json();
 			})
-				.then(async (res) => {
-					if (!res.ok) throw await res.json();
-					return res.json();
-				})
-				.catch((err) => {
-					console.error(err);
-					return null;
-				});
+			.catch((err) => {
+				console.error(err);
+				return null;
+			});
 
-			if (containerInfo) {
+		if (containerInfos) {
+			for (var [i, containerInfo] of containerInfos.entries()) {
 				modelContainers = [
 					...modelContainers,
 					{
-						model: model,
+						model: containerInfo.model,
 						status: containerInfo.status,
 						is_active: containerInfo.status === 'start' || containerInfo.status === 'created',
 						is_loading: false,
@@ -103,7 +106,7 @@
 					}
 				];
 
-				modelContainerMapping.set(model, i);
+				modelContainerMapping.set(containerInfo.model, i);
 			}
 		}
 
