@@ -1,4 +1,5 @@
 import asyncio
+from concurrent.futures import thread
 from copy import Error
 import logging
 import threading
@@ -63,8 +64,7 @@ class Container:
             pass
         self.info_mapping: dict[str, ContainerInfo] = {}
 
-        self.emit_thread: asyncio.Task | None = None
-        self.log_thread = None
+        self.emit_thread: threading.Thread | None = None
         self.stop_emit = False
 
         self.get_model_container_list()
@@ -164,17 +164,16 @@ class Container:
     def start_emit_thread(self):
         if self.emit_thread is None or not self.emit_thread:
             self.stop_emit = False
-            self.emit_thread = asyncio.create_task(self.emit_container_events())
+            self.emit_thread = threading.Thread(
+                target=self.emit_container_events_wrapper
+            )
 
     def stop_emit_thread(self):
         self.stop_emit = True
         if self.emit_thread:
-            self.emit_thread.cancel()
+            self.emit_thread.join()
 
         self.emit_thread = None
-
-    def _run_async_emit(self):
-        asyncio.run(self.emit_container_events())
 
     async def _emit_model_container_info(self, name, status, id):
         data = {
@@ -183,6 +182,9 @@ class Container:
         }
         log.debug(data)
         await sio.emit("container", data)
+
+    def emit_container_events_wrapper(self):
+        asyncio.run(self.emit_container_events())
 
     async def emit_container_events(self):
         for event in self.client.events(decode=True):
