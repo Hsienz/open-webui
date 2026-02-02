@@ -210,6 +210,7 @@ class Container:
             log.warning("container %s not found", model)
             return
         return {
+            "model": model,
             "status": info.status.to_str(),
             "device_ids": info.device_ids,
             "port": info.port,
