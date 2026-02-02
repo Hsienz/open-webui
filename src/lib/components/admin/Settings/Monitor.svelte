@@ -51,13 +51,11 @@
 	});
 </script>
 
-<div
-	class="{gpu_info.length < 2
-		? 'sm:grid-cols-1'
-		: 'sm:grid-cols-2'} grid grid-cols-1 w-full h-full gap-2 auto-rows-min"
->
+<div class="sm:grid-cols-2 grid grid-cols-1 w-full h-full gap-4 auto-rows-min px-4">
 	{#each gpu_info as x (x.uuid)}
-		<div class="flex bg-gray-800 rounded-lg h-24 p-2 items-center">
+		<div
+			class="flex bg-gray-800 rounded-lg h-20 px-4 items-center hover:scale-105 duration-150 transition-all"
+		>
 			<div class="flex-col w-16 h-16 flex justify-center">
 				<p class="font-semibold text-lg">ID:</p>
 				<p class="text-4xl font-bold mx-auto">{x.id}</p>
