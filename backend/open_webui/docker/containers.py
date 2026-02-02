@@ -63,7 +63,7 @@ class Container:
             pass
         self.info_mapping: dict[str, ContainerInfo] = {}
 
-        self.emit_thread = None
+        self.emit_thread: asyncio.Task | None = None
         self.log_thread = None
         self.stop_emit = False
 
@@ -162,31 +162,19 @@ class Container:
             )
 
     def start_emit_thread(self):
-        if self.emit_thread is None or not self.emit_thread.is_alive():
+        if self.emit_thread is None or not self.emit_thread:
             self.stop_emit = False
-            self.emit_thread = threading.Thread(target=self._run_async_emit)
-            self.emit_thread.start()
+            self.emit_thread = asyncio.create_task(self.emit_container_events())
 
     def stop_emit_thread(self):
         self.stop_emit = True
         if self.emit_thread:
-            self.emit_thread.join()
+            self.emit_thread.cancel()
 
         self.emit_thread = None
 
     def _run_async_emit(self):
         asyncio.run(self.emit_container_events())
-
-    def follow_logs_until_match(self, name, re_str: str, event: threading.Event):
-        info = self.info_mapping.get(name)
-        if info is None or info.container is None:
-            log.warning("container %s not found", name)
-            return
-
-        for line in info.container.logs(stream=True, follow=True):
-            line = line.decode().strip()
-            if re.search(re_str, line):
-                event.set()
 
     async def _emit_model_container_info(self, name, status, id):
         data = {
