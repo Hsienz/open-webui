@@ -1,3 +1,4 @@
+import asyncio
 import threading
 from fastapi import Depends
 from fastapi.routing import APIRouter
@@ -35,12 +36,17 @@ async def _start_monitoring():
         time.sleep(3)
 
 
+def _start_monitoring_wrapper():
+    asyncio.run(_start_monitoring())
+
+
 @router.post("/start")
 def start_monitor(user=Depends(get_verified_user)):
     if monitor.task and not monitor.stop_monitoring:
         return {"status": "already running"}
     monitor.stop_monitoring = False
-    monitor.task = threading.Thread(target=_start_monitoring)
+    monitor.task = threading.Thread(target=_start_monitoring_wrapper)
+    monitor.task.start()
     return {"status": "running"}
 
 
