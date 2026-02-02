@@ -35,12 +35,13 @@ WORKDIR /app
 # to store git revision in build
 RUN apk add --no-cache git
 
+RUN npm i -g bun
 COPY package.json package-lock.json ./
-RUN npm ci --force
+RUN bun install
 
 COPY . .
 ENV APP_BUILD_HASH=${BUILD_HASH}
-RUN npm run build
+RUN bun run build
 
 ######## WebUI backend ########
 FROM python:3.11.14-slim-bookworm AS base
