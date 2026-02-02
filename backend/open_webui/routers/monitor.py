@@ -1,17 +1,18 @@
+import threading
 from fastapi import Depends
 from fastapi.routing import APIRouter
-import asyncio
 import nvsmi
 from open_webui.socket.main import sio
 from open_webui.utils.auth import get_verified_user
+import time
 
 router = APIRouter()
 
 
 class Monitor:
     def __init__(self) -> None:
-        self.stop_monitoring = asyncio.Event()
-        self.task: asyncio.Task | None = None
+        self.stop_monitoring = False
+        self.task: threading.Thread | None = None
 
 
 monitor = Monitor()
@@ -28,26 +29,26 @@ def get_gpu_info(user=Depends(get_verified_user)):
 
 
 async def _start_monitoring():
-    while not monitor.stop_monitoring.is_set():
+    while not monitor.stop_monitoring:
         data = {"type": "monitor:gpu", "data": _get_gpu_info()}
         await sio.emit("monitor", data)
-        await asyncio.sleep(3)
+        time.sleep(3)
 
 
 @router.post("/start")
-async def start_monitor(user=Depends(get_verified_user)):
-    if monitor.task and not monitor.task.done():
+def start_monitor(user=Depends(get_verified_user)):
+    if monitor.task and not monitor.stop_monitoring:
         return {"status": "already running"}
-    monitor.stop_monitoring.clear()
-    monitor.task = asyncio.create_task(_start_monitoring())
+    monitor.stop_monitoring = False
+    monitor.task = threading.Thread(target=_start_monitoring)
     return {"status": "running"}
 
 
 @router.post("/stop")
-async def stop_monitor(user=Depends(get_verified_user)):
-    monitor.stop_monitoring.set()
+def stop_monitor(user=Depends(get_verified_user)):
+    monitor.stop_monitoring = True
     if monitor.task:
-        await monitor.task
+        monitor.task.join()
 
     monitor.task = None
     return {"status": "stopped"}
