@@ -98,8 +98,10 @@ async def get_container_status(model: str, user=Depends(get_verified_user)):
 @router.put("/emit/start")
 async def start_emit(user=Depends(get_verified_user)):
     container.start_emit_thread()
+    return {"status": "emitting"}
 
 
 @router.put("/emit/stop")
 async def stop_emit(user=Depends(get_verified_user)):
     container.stop_emit_thread()
+    return {"status": "stopped"}
