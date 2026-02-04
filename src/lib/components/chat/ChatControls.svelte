@@ -225,7 +225,7 @@
 	{/if}
 
 	<Pane
-		bind:pane
+		bind:this={pane}
 		defaultSize={0}
 		onResize={(size) => {
 			if ($showControls && pane.isExpanded()) {
