@@ -433,6 +433,7 @@
 								<Tooltip content={$i18n.t('Delete User')}>
 									<button
 										class="self-center w-fit text-sm px-2 py-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"
+										aria-label={$i18n.t('Delete User')}
 										on:click={async () => {
 											showDeleteConfirmDialog = true;
 											selectedUser = user;

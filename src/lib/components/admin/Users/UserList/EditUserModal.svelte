@@ -140,6 +140,7 @@
 											<select
 												class="w-full dark:bg-gray-900 text-sm bg-transparent disabled:text-gray-500 dark:disabled:text-gray-500 outline-hidden"
 												bind:value={_user.role}
+												aria-label={$i18n.t('Role')}
 												disabled={_user.id == sessionUser.id || _user.role == 'admin'}
 												required
 											>
