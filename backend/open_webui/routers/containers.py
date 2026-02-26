@@ -18,8 +18,9 @@ router = APIRouter()
 class ModelForm(BaseModel):
     model: str
     port: int
-    device_ids: Optional[str] = None
-    tool_call_parser: Optional[str] = None
+    served_model_name: str = ""
+    device_ids: str = ""
+    tool_call_parser: str = ""
     tensor_parallel_size: Optional[int] = None
     gpu_memory_utilization: Optional[float] = None
 
@@ -67,9 +68,12 @@ async def run_model_container(
     background_tasks.add_task(
         container.run_model_container_wrapper,
         model=request.model,
+        # container name
         name=request.model,
+        # container port to host port
         ports={"{}/tcp".format(port): request.port},
         port=request.port,
+        served_model_name=request.served_model_name,
         tensor_parallel_size=request.tensor_parallel_size,
         tool_call_parser=request.tool_call_parser,
         gpu_memory_utilization=request.gpu_memory_utilization,

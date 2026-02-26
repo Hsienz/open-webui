@@ -104,6 +104,7 @@ class Container:
         self,
         model: str,
         port: int,
+        served_model_name: str = "",
         gpu_memory_utilization: Optional[float] = None,
         tensor_parallel_size: Optional[int] = None,
         tool_call_parser: Optional[str] = None,
@@ -124,6 +125,11 @@ class Container:
         command.append("--enable-auto-tool")
         command.append("--tool-call-parser")
         command.append("hermes")
+
+        if served_model_name:
+            command.append("--served-model-name")
+            command.append(served_model_name)
+
         if gpu_memory_utilization is not None:
             command.append("--gpu_memory_utilization")
             command.append(gpu_memory_utilization)
@@ -226,7 +232,7 @@ class Container:
         if use_cache:
             return sorted(container.info_mapping.keys())
         else:
-            path = "/opt/models"
+            path = os.getenv("MODEL_DIR", "/opt/models")
             dirs = []
             for name in os.listdir(path):
                 if not os.path.isdir(os.path.join(path, name)):
