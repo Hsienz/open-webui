@@ -5,12 +5,11 @@
 	import Switch from '$lib/components/common/Switch.svelte';
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import { getContext } from 'svelte';
-	import { contains } from 'vega-lite';
 	import { toast } from 'svelte-sonner';
 	import Monitor from './Monitor.svelte';
 	import ScrollArea from '$lib/components/ui/scroll-area/scroll-area.svelte';
 	import * as Resizable from '$lib/components/ui/resizable/index';
-	import * as Collapsible from '$lib/components/ui/collapsible/index';
+	import { Collapsible } from 'bits-ui';
 	import ChevronUpDown from '$lib/components/icons/ChevronUpDown.svelte';
 
 	interface ModelContainer {
