@@ -41,6 +41,7 @@ class ContainerInfo:
             self.set_status_with_priority(container.status)
         self.container = container
         self.device_ids: str = ""
+        self.served_model_name: str = ""
         self.port: int | None = None
         self.tensor_parallel_size: int | None = None
         self.gpu_memory_utilization: float | None = None
@@ -219,6 +220,7 @@ class Container:
             "model": model,
             "status": info.status.to_str(),
             "device_ids": info.device_ids,
+            "served_model_name": info.served_model_name,
             "port": info.port,
             "tensor_parallel_size": info.tensor_parallel_size,
             "gpu_memory_utilization": info.gpu_memory_utilization,
