@@ -10,7 +10,6 @@ import os
 from docker.types import DeviceRequest
 from open_webui.socket.main import sio
 from enum import IntEnum, auto
-import re
 
 
 log = logging.getLogger(__name__)
@@ -70,18 +69,13 @@ class Container:
 
         self.get_model_container_list()
 
-    def run_model_container(self, model: str, command=None, **kwargs):
+    def run_model_container(self, command=None, **kwargs):
+        log.debug(command, kwargs)
         container = self.client.containers.run(
             image="vllm/vllm-openai:latest",
             command=command,
             detach=True,
             remove=True,
-            volumes={
-                "/root/.cache/huggingface": {
-                    "bind": "/root/.cache/hugginface",
-                    "mode": "ro",
-                },
-            },
             **{k: v for k, v in kwargs.items() if v is not None},
         )
         return container
@@ -101,6 +95,30 @@ class Container:
             container.stop()
             self.info_mapping[model] = ContainerInfo(None)
 
+    @staticmethod
+    def is_running_in_docker() -> bool:
+        return os.path.exists("/.dockerenv")
+
+    @staticmethod
+    def get_model_path(model: str) -> str:
+        if Container.is_running_in_docker():
+            return os.path.join("/opt/models", model)
+        else:
+            model_dir = os.getenv("MODEL_DIR")
+            if model_dir is None:
+                raise EnvironmentError("MODEL_DIR is not set")
+
+            return os.path.join(model_dir, model)
+
+    @staticmethod
+    def is_model_folder(path: str) -> bool:
+        if not os.path.isdir(path):
+            return False
+        config_path = os.path.join(path, "config.json")
+        if not os.path.exists(config_path) or not os.path.isfile(config_path):
+            return False
+        return True
+
     def run_model_container_wrapper(
         self,
         model: str,
@@ -108,7 +126,6 @@ class Container:
         served_model_name: str = "",
         gpu_memory_utilization: Optional[float] = None,
         tensor_parallel_size: Optional[int] = None,
-        tool_call_parser: Optional[str] = None,
         **kwargs,
     ):
         info = self.info_mapping.get(model)
@@ -118,14 +135,12 @@ class Container:
         container = info.container
         command = []
         command.append("--model")
-        command.append(Container.parse_model_container_name_to_model(model))
+        command.append(Container.get_model_path(model))
 
         command.append("--port")
         command.append(port)
 
         command.append("--enable-auto-tool")
-        command.append("--tool-call-parser")
-        command.append("hermes")
 
         if served_model_name:
             command.append("--served-model-name")
@@ -139,13 +154,8 @@ class Container:
             command.append("--tensor_parallel_size")
             command.append(tensor_parallel_size)
 
-        if tool_call_parser is not None:
-            command.append("--tool-call-parser")
-            command.append(tool_call_parser)
-
         command = [str(c) for c in command]
         container = self.run_model_container(
-            model=model,
             command=command,
             **kwargs,
         )
@@ -227,10 +237,6 @@ class Container:
             "gpu_memory_utilization": info.gpu_memory_utilization,
         }
 
-    @classmethod
-    def parse_model_container_name_to_model(cls, name: str) -> str:
-        return "/".join(name.split("--")[1:])
-
     def get_model_container_list(self, use_cache: bool = False):
         if use_cache:
             return sorted(container.info_mapping.keys())
@@ -238,14 +244,8 @@ class Container:
             path = os.getenv("MODEL_DIR", "/opt/models")
             dirs = []
             for name in os.listdir(path):
-                if not os.path.isdir(os.path.join(path, name)):
-                    continue
-                splited = name.split("--")
-                if len(splited) != 3 or splited[0] != "models":
-                    log.warning(
-                        "Format of model directory not acceptable, should be models--[model-maker]--[model-name], get %s, skipped",
-                        name,
-                    )
+                model_path = os.path.join(path, name)
+                if not Container.is_model_folder(model_path):
                     continue
 
                 dirs.append(name)

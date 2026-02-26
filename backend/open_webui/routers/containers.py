@@ -20,7 +20,6 @@ class ModelForm(BaseModel):
     port: int
     served_model_name: str = ""
     device_ids: str = ""
-    tool_call_parser: str = ""
     tensor_parallel_size: Optional[int] = None
     gpu_memory_utilization: Optional[float] = None
 
@@ -75,7 +74,6 @@ async def run_model_container(
         port=request.port,
         served_model_name=request.served_model_name,
         tensor_parallel_size=request.tensor_parallel_size,
-        tool_call_parser=request.tool_call_parser,
         gpu_memory_utilization=request.gpu_memory_utilization,
         device_requests=device_requests,
     )
