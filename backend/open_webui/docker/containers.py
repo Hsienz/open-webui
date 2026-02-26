@@ -155,6 +155,7 @@ class Container:
         info.port = port
         info.tensor_parallel_size = tensor_parallel_size
         info.gpu_memory_utilization = gpu_memory_utilization
+        info.served_model_name = served_model_name
         device_requests = kwargs.get("device_requests")
         log.debug("kwargs: %s", kwargs)
         log.debug("device_requests: %s", device_requests)
