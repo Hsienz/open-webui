@@ -322,7 +322,7 @@
 			</Resizable.Pane>
 			<Resizable.Handle class="bg-white" withHandle />
 			<Resizable.Pane defaultSize={20} class="py-2">
-				<ScrollArea class="h-full text-red-400">
+				<ScrollArea class="h-full">
 					<Monitor />
 				</ScrollArea>
 			</Resizable.Pane>
