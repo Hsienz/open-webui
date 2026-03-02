@@ -186,6 +186,7 @@ class Container:
             self.emit_thread = threading.Thread(
                 target=self.emit_container_events_wrapper
             )
+            self.emit_thread.start()
 
     def stop_emit_thread(self):
         self.stop_emit = True
