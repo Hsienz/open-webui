@@ -134,13 +134,14 @@ class Container:
             return
         container = info.container
         command = []
-        command.append("--model")
         command.append(Container.get_model_path(model))
 
         command.append("--port")
-        command.append(port)
+        command.append(8000)
 
         command.append("--enable-auto-tool")
+        command.append("--tool-tool-parser")
+        command.append("hermes")
 
         if served_model_name:
             command.append("--served-model-name")
