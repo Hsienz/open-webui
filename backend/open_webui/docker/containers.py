@@ -37,23 +37,14 @@ class ContainerInfo:
     def __init__(self, container: Optional[DockerContainer]):
         self.status: ContainerStatus = ContainerStatus.Closed
         if container is not None:
-            self.set_status_with_priority(container.status)
+            if status := ContainerStatus.from_str(container.status):
+                self.status = status
         self.container = container
         self.device_ids: str = ""
         self.served_model_name: str = ""
         self.port: int | None = None
         self.tensor_parallel_size: int | None = None
         self.gpu_memory_utilization: float | None = None
-
-    def set_status_with_priority(self, status: str | ContainerStatus) -> bool:
-        if isinstance(status, str):
-            temp = ContainerStatus.from_str(status)
-            if temp is None:
-                return False
-            status = temp
-
-        self.status = status
-        return True
 
 
 class Container:
@@ -140,7 +131,7 @@ class Container:
         command.append(8000)
 
         command.append("--enable-auto-tool")
-        command.append("--tool-tool-parser")
+        command.append("--tool-call-parser")
         command.append("hermes")
 
         if served_model_name:
@@ -162,7 +153,8 @@ class Container:
         )
 
         info.container = container
-        info.set_status_with_priority(container.status)
+        if status := ContainerStatus.from_str(container.status):
+            info.status = status
         info.port = port
         info.tensor_parallel_size = tensor_parallel_size
         info.gpu_memory_utilization = gpu_memory_utilization
@@ -219,7 +211,8 @@ class Container:
             status = event.get("status")
             info = self.info_mapping.get(name)
             if info and status:
-                if info.set_status_with_priority(status):
+                if status := ContainerStatus.from_str(status):
+                    info.status = status
                     await self._emit_model_container_info(
                         name, info.status.to_str(), id
                     )
