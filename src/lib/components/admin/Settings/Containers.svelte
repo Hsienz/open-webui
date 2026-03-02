@@ -29,6 +29,13 @@
 	const token = localStorage.token;
 	const i18n = getContext('i18n');
 
+	const containerStatusClass = new Map<string, string>([
+		['closed', 'text-yellow-200'],
+		['start', 'text-green-300'],
+		['created', 'text-green-300'],
+		['destroyed', 'text-yellow-200'],
+		['die', 'text-red-400']
+	]);
 	const containerHandler = async (event, cb) => {
 		console.log('container handler', JSON.stringify(event));
 		const type = event?.type ?? null;
@@ -207,7 +214,7 @@
 												<h4 class="font-bold">
 													{container.model}
 												</h4>
-												<span class="text-xs mt-auto">
+												<span class="text-xs mt-auto {containerStatusClass.get(container.status)}">
 													{#if container.is_loading}
 														<Spinner />
 													{:else}
